@@ -2,8 +2,9 @@
 function exportColumns(outputKey, allKeys, outputCols) {
     const datasets = outputCols.map(
         col => {
-            const col_keys = col.frame.keys[outputKey].keys;
-            const col_data = col.frame.df[col.column].data;
+            console.log(col);
+            const col_keys = col.data.frame.keys[outputKey].keys;
+            const col_data = col.data.frame.df[col.data.column].data;
             const pairs = {};
             col_keys.forEach((key, idx) => {
                 pairs[key] = col_data[idx];
@@ -14,7 +15,7 @@ function exportColumns(outputKey, allKeys, outputCols) {
 
     const header = [outputKey];
     for (const oc of outputCols) {
-        header.push(oc.column);
+        header.push(oc.name);
     }
 
     const table = [header];

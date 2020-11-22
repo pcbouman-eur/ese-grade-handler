@@ -48,7 +48,6 @@ function processWorkbook(workbook) {
         try {
             const df = sheetToDataframe(workbook.Sheets[sheetName]);
             const keys = findKeyColumns(df);
-            console.log(keys);
             if (Object.keys(keys).length > 0) {
                 frames.push({sheetName, df, keys});
                 error = undefined;
