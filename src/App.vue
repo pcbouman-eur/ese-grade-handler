@@ -6,55 +6,37 @@
       dark
     >
       <div class="d-flex align-center">
-        <v-img
-          alt="Vuetify Logo"
-          class="shrink mr-2"
-          contain
-          src="https://cdn.vuetifyjs.com/images/logos/vuetify-logo-dark.png"
-          transition="scale-transition"
-          width="40"
-        />
-
-        <v-img
-          alt="Vuetify Name"
-          class="shrink mt-1 hidden-sm-and-down"
-          contain
-          min-width="100"
-          src="https://cdn.vuetifyjs.com/images/logos/vuetify-name-dark.png"
-          width="100"
-        />
+        <h3>ESE Grade Wrangling Tool</h3>
       </div>
 
       <v-spacer></v-spacer>
-
-      <v-btn
-        href="https://github.com/vuetifyjs/vuetify/releases/latest"
-        target="_blank"
-        text
-      >
-        <span class="mr-2">Latest Release</span>
-        <v-icon>mdi-open-in-new</v-icon>
-      </v-btn>
     </v-app-bar>
 
     <v-main>
-      <Combiner/>
+      <v-tabs centered v-model="currentTab">
+        <v-tab>Combiner</v-tab>
+        <v-tab>Injector</v-tab>
+      </v-tabs>
+      <Combiner v-if="currentTab == 0" />
+      <Injector v-else-if="currentTab == 1" />
     </v-main>
   </v-app>
 </template>
 
 <script>
 import Combiner from './components/Combiner';
+import Injector from './components/Injector';
 
 export default {
   name: 'App',
 
   components: {
     Combiner,
+    Injector
   },
 
   data: () => ({
-    //
+    currentTab: 0
   }),
 };
 </script>

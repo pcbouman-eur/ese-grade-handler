@@ -1,11 +1,5 @@
 import sheetToDataframe from './sheetToDataframe';
-
-const DEFAULT_CONFIG = {
-    keys: [
-            { name: 'erna', pattern: /\d{6}[a-z]{2}/g},
-            { name: 'student number', pattern: /\d{6}/g}
-    ]
-}
+import IdentityConfig from './IdentityConfig';
 
 function checkKeySpec(column, spec) {
     const keySet = new Set();
@@ -26,11 +20,11 @@ function checkKeySpec(column, spec) {
     return {result: true, keyCol};
 }
 
-function findKeyColumns(df, config=DEFAULT_CONFIG) {
+function findKeyColumns(df, config=IdentityConfig) {
     const result = {};
     cols:
     for (let colname of df.columns) {
-        for (let keySpec of config.keys) {
+        for (let keySpec of config.keyTypes) {
             const spec = checkKeySpec(df[colname], keySpec);
             if (spec.result && !(spec.name in result)) {
                 result[keySpec.name] = {type: keySpec.name, column: colname, keys: spec.keyCol};

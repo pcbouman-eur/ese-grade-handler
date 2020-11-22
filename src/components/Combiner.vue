@@ -1,9 +1,9 @@
 <template>
   <v-container>
-    <v-row class="text-center">
-      <v-col cols="6">
+    <v-row>
+      <v-col cols="12">
         <h2>Combine Results</h2>
-        <p>Combine different results</p>
+        <p>Combine student results from different input datasets into a single output dataset.</p>
       </v-col>
     </v-row>
     <v-row>
@@ -23,9 +23,11 @@
             <v-card-text v-else>
               Multiple columns with identities found, this is currently not supported.
             </v-card-text> -->
-            <v-switch label="Add students to output" v-model="frame.includeStudents" />
+            <v-card-actions>
+              <v-switch label="Add students to output" v-model="frame.includeStudents" />
+            </v-card-actions>
           </v-card>
-          <v-alert v-if="book.skipped" type="warning">
+          <v-alert v-if="book.skipped.length > 0" type="warning">
             {{book.skipped.length}} sheets were skipped
           </v-alert>
         </div>
@@ -35,6 +37,8 @@
         <v-btn color="primary" :disabled="availableKeys.length == 0" @click="addOutputCol">Add Output Column</v-btn>
         &nbsp;
         <v-btn color="primary" :disabled="cantExport" @click="exportSheet">Export Spreadsheet</v-btn>
+        <br />
+        <v-switch label="Remove students without any results" v-model="dropEmptyStudents" />
         <div v-if="this.availableKeys.length > 0">
           <h4>Key Column</h4>
           <v-select :items="availableKeys"
@@ -54,7 +58,7 @@
                   :item-value="availableColumnToValue"
                   :value="col.outputColumn"
                   @change="v => updateSourceColumn(v, col)"
-                  label="Column"
+                  label="Source Column"
                   outlined
                   dense />
               </v-col>
@@ -76,7 +80,7 @@
   import XLSX from 'xlsx';
   import processWorkbook from '../util/processWorkbook';
   import exportColumns from '../util/exportColumns';
-
+  
   export default {
     name: 'Combiner',
 
@@ -84,6 +88,7 @@
       workbooks: [],
       keyColumn: undefined,
       outputColumns: [],
+      dropEmptyStudents: true
     }),
     methods: {
       clickOpen() {
@@ -134,7 +139,7 @@
         col.outputName = newVal.column;
       },
       exportSheet() {
-        const table = exportColumns(this.keyColumn, this.allKeys, this.selectedColumns);
+        const table = exportColumns.makeTable(this.keyColumn, this.allKeys, this.selectedColumns, this.dropEmptyStudents);
         const wb = XLSX.utils.book_new(), ws = XLSX.utils.aoa_to_sheet(table);
         XLSX.utils.book_append_sheet(wb, ws, 'Output');
         XLSX.writeFile(wb, 'output.xlsx');
