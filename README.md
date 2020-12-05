@@ -1,7 +1,7 @@
 # ESE Grading tool
 
 This is a tool that can help teachers of ESE (and maybe other EUR faculties as well) handling
-they grades and results in a more convenient way that tricky `VLOOKUP` voodoo in Excel.
+they grades and results in a more convenient and robust way than tricky, error-prone `VLOOKUP`/`XLOOKUP`/`INDEX/MATCH` voodoo in Excel.
 
 You can use a live version of the tool on [Github Pages](https://pcbouman-eur.github.io/ese-exam-viewer/)
 

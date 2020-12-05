@@ -9,7 +9,7 @@ module.exports = {
   pages: {
     index: {
       entry: './src/main.js',
-      title: 'Answer Viewer'
+      title: 'ESE grade handler'
     }
   } 
 }
