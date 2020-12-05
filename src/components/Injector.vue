@@ -1,10 +1,14 @@
 <template>
   <v-container>
-    <v-row>
-      <v-col cols="12">
+    <v-row align="center" justify="center">
+      <v-col cols="6">
         <h2>Inject Results</h2>
         <p>Read final course results from one dataset and inject those results
-           into an official SPD spreadsheet to be loaded into Osiris.
+           into the official SPD spreadsheet to be loaded into Osiris.
+           The free version of SheetJS strips the styling and layout from the
+           output spreadsheet. I am not sure if that is a problem for SPD,
+           but it is easy to copy paste the results in the official sheet to
+           work around this.
         </p>
       </v-col>
     </v-row>

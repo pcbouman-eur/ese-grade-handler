@@ -1,9 +1,15 @@
 <template>
   <v-container>
-    <v-row>
-      <v-col cols="12">
+    <v-row align="center" justify="center">
+      <v-col cols="6">
         <h2>Combine Results</h2>
-        <p>Combine student results from different input datasets into a single output dataset.</p>
+        <p>Combine student results from different input datasets into a single output dataset.
+           You can toggle whether the students from a dataset should be added to the output.
+           If you have a file with results from last year, you can disable adding students from
+           last year to the set of output students. In that case, the results from last year's
+           students  are only included if their identities also appear in a dataset from this
+           year (where the toggle is active).
+        </p>
       </v-col>
     </v-row>
     <v-row>
@@ -24,7 +30,7 @@
               Multiple columns with identities found, this is currently not supported.
             </v-card-text> -->
             <v-card-actions>
-              <v-switch label="Add students to output" v-model="frame.includeStudents" />
+              <v-switch label="Add all students to output" v-model="frame.includeStudents" />
             </v-card-actions>
           </v-card>
           <v-alert v-if="book.skipped.length > 0" type="warning">
