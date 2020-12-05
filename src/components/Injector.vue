@@ -34,7 +34,7 @@
 
       </v-col>
       <v-col cols=6>
-        <h4>Target Spreadsheets</h4>
+        <h4>Target Spreadsheet (as provided by SPD)</h4>
         <v-btn color="primary" @click="clickOpenTarget">Set Target Spreadsheet</v-btn>
         &nbsp;
         <v-btn color="primary" @click="downloadResult" :disabled="!injectionResults">
