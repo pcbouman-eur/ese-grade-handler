@@ -12,6 +12,21 @@ const IdentityConfig = {
             return val.substr(0,6);
         }
         throw 'Conversion from '+fromType+' to '+toType+' not supported';
+    },
+    preferredType(types) {
+        for (let kt of this.keyTypes) {
+            if (types.includes(kt.name)) {
+                return kt.name;
+            }
+        }
+        throw 'No preferred type is available';
+    },
+    getPattern(name) {
+        for (let obj of this.keyTypes) {
+            if (obj.name == name) {
+                return obj.pattern;
+            }
+        }
     }
 };
 

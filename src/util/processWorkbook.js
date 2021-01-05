@@ -57,4 +57,66 @@ function processWorkbook(workbook) {
     return {frames, skipped};
 }
 
-export default processWorkbook;
+const USER_KEY = 'User';
+const SHEET_KEY = 'Attendance';
+const EXEMPTION_KEY = 'Vrijstelling';
+const SESSION_PREFIX = 'Sessie';
+const FIRST_ROW = 6;
+const DEFAULT_MINIMUM_PERCENTAGE = 0.7;
+
+function processAttendanceWorkbook(workbook) {
+    const attSheet = workbook.Sheets[SHEET_KEY];
+    if (!attSheet) {
+        return {error: 'No sheet found with key '+SHEET_KEY};
+    }
+    const df = sheetToDataframe(attSheet,FIRST_ROW,FIRST_ROW+1);
+
+    const userCol = df[USER_KEY].data;
+    if (!userCol) {
+        return {error: 'A column with name '+USER_KEY+' was expected but not found.'};
+    }
+
+    const exemptionCol = df[EXEMPTION_KEY].data;
+    if (!exemptionCol) {
+        return {error: 'A column with name '+EXEMPTION_KEY+' was expected but not found.'};
+    }
+
+    let sessionKeys = [];
+    let sessionCols = {};
+    for (let col of df.columns) {
+        if (col.startsWith(SESSION_PREFIX)) {
+            sessionKeys.push(col);
+            sessionCols[col] = df[col].data;
+        }
+    }
+
+    const data = {};
+
+    const duplicates = [];
+
+    for (let row of df.index) {
+        const userName = userCol[row];
+        let exemption = exemptionCol[row];
+        const sessionsPresent = new Set();
+        for (let ses of sessionKeys) {
+            const present = sessionCols[ses][row];
+            if (present) {
+                sessionsPresent.add(ses);
+            }
+        }
+        if (data[userName]) {
+            duplicates.push(userName);
+            const oldrec = data[userName];
+            exemption = exemption || oldrec.exemption;
+            for (let ses of oldrec.sessionsPresent) {
+                sessionsPresent.add(ses);
+            }
+        }
+        data[userName] = {userName, exemption, sessionsPresent};
+    }
+
+    const threshold = Math.ceil(DEFAULT_MINIMUM_PERCENTAGE * sessionKeys.length);
+    return {sessions: sessionKeys, data, duplicates, threshold};
+}
+
+export {processWorkbook, processAttendanceWorkbook};

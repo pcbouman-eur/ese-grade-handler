@@ -1,6 +1,7 @@
 const GradingPolicy = {
     alternatives: ['VD', 'NVD', 'VR', 'GGR', 'ONV', 'NO', 'FR'],
     missingValue: 'NO',
+    invalidResult: 'GGR',
     minGrade: 1,
     maxGrade: 10,
     roundingRule(num) {
@@ -9,9 +10,12 @@ const GradingPolicy = {
     truncateRule(num) {
         return Math.max(this.minGrade, Math.min(this.maxGrade, num));
     },
-    finalize(value) {
+    finalize(value,invalidAttendance=false) {
         if (this.alternatives.includes(value)) {
             return value;
+        }
+        if (invalidAttendance) {
+            return 'GGR';
         }
         let num = parseFloat(value);
         num = this.roundingRule(num);

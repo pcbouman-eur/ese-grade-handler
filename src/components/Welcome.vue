@@ -23,7 +23,7 @@
             Sheets with two header rows, for example as they are exported by
             Canvas, are not supported; you are advised to just delete additional
             header rows before you use a spreadsheet in this tool.</li>
-            <li>At least one of the columns in a sheet must be a <em>key-colum</em>
+            <li>At least one of the columns in a sheet must be a <em>key-column</em>
             with student identities. A student identity is any piece of text that
             contains a single erna identity (e.g. <code>123456ab</code>) somewhere.
             </li>
@@ -40,6 +40,14 @@
               in the future.              
             </li>
         </ul>
+        <h3>Attendance Data (new)</h3>
+        <p>Attendance data, exported verbatim from sin-online as <code>xls</code>
+        file, is now also supported. If you import attendance data, double entries
+        are automatically merged (i.e. if students switched between session) and
+        a 70% threshold is used to determine attendance. This threshold can be
+        adjusted. Attendance data is supported both for the combiner, where you
+        can add attendance columns to your output, and the injector, where it
+        injects GGR when this is appropiate.</p>
         <h3>Is this safe?</h3>
         <p>All processing of grades happens solely within your web-browser,
           and no data is transmitted over the internet by this tool. Once

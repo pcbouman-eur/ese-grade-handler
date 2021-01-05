@@ -14,7 +14,7 @@ const FIRST_ROW = 8;
 const OUTPUT_KEY = 'erna';
 const SHEET_KEY = 'student number';
 
-function resultPreflight(id, result, errors, warnings, gradingPolicy) {
+function resultPreflight(id, result, errors, warnings, gradingPolicy, failedAtt) {
     if (result) {
         const error = gradingPolicy.checkError(result);
         if (error) {
@@ -27,7 +27,7 @@ function resultPreflight(id, result, errors, warnings, gradingPolicy) {
             return gradingPolicy.finalize(result);
         }
         else {
-            return gradingPolicy.finalize(result);
+            return gradingPolicy.finalize(result, failedAtt);
         }
     }
     else {
@@ -37,9 +37,33 @@ function resultPreflight(id, result, errors, warnings, gradingPolicy) {
     }
 }
 
-function injectResults(column, wb, gradingPolicy, identityConfig) {
+function attendanceKeys(attendance) {
+    const result = {};
+    if (attendance) {
+        for (const key of Object.keys(attendance.data)) {
+            result[key.substring(0,6)] = key;
+        }
+    }
+    return result;
+}
+
+function checkAttendanceFailed(attendance, id, attendanceMap) {
+    if (!attendance) {
+        return false;
+    }
+    const convId = attendanceMap[id];
+    if (!convId || !attendance.data[convId]) {
+        // No data for this student
+        return true;
+    }
+    const data = attendance.data[convId];
+    return data.sessionsPresent.size < attendance.threshold;
+}
+
+function injectResults(column, wb, gradingPolicy, identityConfig, attendance) {
     const errors = [], warnings = [], missing = [];
     const sheet = wb.Sheets[SHEET_NAME];
+    const attendanceMap = attendanceKeys(attendance);
     if (sheet) {
         let idcell = sheet[ID_CELL];
         let rescell = sheet[RES_CELL];
@@ -53,6 +77,7 @@ function injectResults(column, wb, gradingPolicy, identityConfig) {
             // Proceed
             const processed = new Set();
             const erna_dataset = exportColumns.columnToDataset(column, OUTPUT_KEY);
+            console.log(column, OUTPUT_KEY, erna_dataset);
             const std_dataset = {};
             for (let [key, val] of Object.entries(erna_dataset)) {
                 std_dataset[identityConfig.convert(OUTPUT_KEY, SHEET_KEY, key)] = val;
@@ -68,16 +93,19 @@ function injectResults(column, wb, gradingPolicy, identityConfig) {
                     rescell = sheet[res_ref];
                 }
                 const id = idcell.v;
+                let failedAtt = checkAttendanceFailed(attendance, id, attendanceMap);
                 if (id) {
                     processed.add(id);
                     const result = std_dataset[id];
-                    rescell.v = resultPreflight(id, result, errors, warnings, gradingPolicy);
+                    console.log(result, id, std_dataset);
+                    rescell.v = resultPreflight(id, result, errors, warnings, gradingPolicy, failedAtt);
                 }
             }
 
             for (let [id,result] of Object.entries(std_dataset)) {
+                let failedAtt = checkAttendanceFailed(attendance, id, attendanceMap);
                 if (!processed.has(id)) {
-                    missing.push({id, result: resultPreflight(id, result, errors, warnings, gradingPolicy)});
+                    missing.push({id, result: resultPreflight(id, result, errors, warnings, gradingPolicy, failedAtt)});
                 }
             }
         }

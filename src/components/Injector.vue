@@ -18,6 +18,7 @@
         <v-btn color="primary" @click="clickOpen">Select Source Spreadsheet</v-btn>
         <input type="file" style="display: none" ref="openFileInput"
                 accept=".xlsx" @change="fileChosen" />
+
         <br />
         <v-card v-if="sourceBook">
           <v-card-title>{{sourceBook.filename}}</v-card-title>
@@ -31,7 +32,7 @@
             </v-alert>              
           </v-card-text>
         </v-card>
-
+        <AttendancePanel v-model="attendance" />
       </v-col>
       <v-col cols=6>
         <h4>Target Spreadsheet (as provided by SPD)</h4>
@@ -44,6 +45,7 @@
           Export Missing</v-btn>          
         <input type="file" style="display: none" ref="openFileTarget"
                 accept=".xlsx" @change="fileTargetChosen" />
+        <v-switch label="Invalid result for students with insufficient attendance" v-if="attendance" v-model="useAttendance" />
         
         <h5 v-if="targetFilename">Target Spreadsheet: {{targetFilename}}</h5>
         <h5 v-else>Target Spreadsheet: not set</h5>
@@ -68,7 +70,7 @@
           <v-expansion-panels>
             <v-expansion-panel>
               <v-expansion-panel-header>
-                View Errors
+                View Errors 
               </v-expansion-panel-header>
               <v-expansion-panel-content>
                 <ul>
@@ -107,15 +109,20 @@
 
 <script>
   import XLSX from 'xlsx';
-  import processWorkbook from '../util/processWorkbook';
+  import {processWorkbook} from '../util/processWorkbook';
   import GradingPolicy from '../util/GradingPolicy';
   import IdentityConfig from '../util/IdentityConfig';
   import injectResults from '../util/injectResults';
+  import AttendancePanel from './AttendancePanel';
 
   export default {
     name: 'Injector',
-
+    components: {
+      AttendancePanel
+    },
     data: () => ({
+      attendance: null,
+      useAttendance: true,
       sourceBook: null,
       sourceColumn: null,
       rawTarget: null,
@@ -129,7 +136,7 @@
       clickOpenTarget() {
         this.$refs.openFileTarget.click();
       },
-      fileChosen(ev) {
+       fileChosen(ev) {
         if (ev.target.files[0]) {
           const file = ev.target.files[0];
           const reader = new FileReader();
@@ -209,7 +216,8 @@
         if (this.rawTarget && this.selectedColumn) {
             try {
               const wb = XLSX.read(this.rawTarget, {type: 'array', cellStyles:true});
-              const result = injectResults(this.selectedColumn, wb, GradingPolicy, IdentityConfig);
+              const passAtt = this.attendance && this.useAttendance ? this.attendance : null;
+              const result = injectResults(this.selectedColumn, wb, GradingPolicy, IdentityConfig, passAtt);
               return result;
             }
             catch (err) {

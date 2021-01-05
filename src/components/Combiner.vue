@@ -37,6 +37,7 @@
             {{book.skipped.length}} sheets were skipped
           </v-alert>
         </div>
+        <AttendancePanel v-model="attendance" />
       </v-col>
       <v-col cols=6>
         <h4>Output Spreadsheet</h4>
@@ -58,15 +59,9 @@
           <v-container class="dense">
             <v-row>
               <v-col cols="6" class="dense">
-                <v-select
-                  :items="availableColumns"
-                  :item-text="availableColumnToText"
-                  :item-value="availableColumnToValue"
-                  :value="col.outputColumn"
-                  @change="v => updateSourceColumn(v, col)"
-                  label="Source Column"
-                  outlined
-                  dense />
+                  <SelectColumn v-model="outputColumns[idx]" label="Source Column"
+                                :availableColumns="availableColumns"
+                                :availableKeys="availableKeys" />
               </v-col>
               <v-col cols="6" class="dense">
                 <v-text-field label="Output Column Name"
@@ -77,6 +72,12 @@
             </v-row>
           </v-container>
         </div>
+        <div v-if="this.availableColumns.length > 0">
+          <h4>Filter Students</h4>
+          <v-switch v-model="addFilter" :label="filterLabel" />
+          <ConditionPanel v-show="addFilter" :availableColumns="availableColumns" :availableKeys="availableKeys" 
+                          @input="updateFilter"/>
+        </div>
       </v-col>
     </v-row>
   </v-container>
@@ -84,17 +85,25 @@
 
 <script>
   import XLSX from 'xlsx';
-  import processWorkbook from '../util/processWorkbook';
+  import {processWorkbook} from '../util/processWorkbook';
   import exportColumns from '../util/exportColumns';
+  import AttendancePanel from './AttendancePanel';
+  import SelectColumn from './SelectColumn';
+  import ConditionPanel from './ConditionPanel';
   
   export default {
     name: 'Combiner',
-
+    components: {
+      AttendancePanel, SelectColumn, ConditionPanel
+    },
     data: () => ({
       workbooks: [],
       keyColumn: undefined,
       outputColumns: [],
-      dropEmptyStudents: true
+      dropEmptyStudents: true,
+      attendance: null,
+      addFilter: false,
+      currentFilter: {}
     }),
     methods: {
       clickOpen() {
@@ -115,22 +124,6 @@
           reader.readAsArrayBuffer(file);
         }
       },
-      availableColumnToText(c) {
-        //console.log(c);
-        if (c.wb && c.wb.filename) {
-          return c.wb.filename + ' / ' + c.frame.sheetName + ' / ' + c.column;
-        }
-        else if (c.frame && c.frame.sheetName && c.column) {
-          return 'Unknown Workbook / ' + c.frame.sheetName + ' / ' + c.column;
-        }
-        else if (c.column) {
-          return 'Unknown Workbook / Unknown Sheet / ' + c.column;
-        }
-        return '[ERROR - Unknown Column]';
-      },
-      availableColumnToValue(c) {
-        return {index: c.index, column: c.column};
-      },
       addOutputCol() {
         this.outputColumns.push(
           {
@@ -140,27 +133,37 @@
           }
         );
       },
-      updateSourceColumn(newVal, col) {
-        col.outputColumn = newVal;
-        col.outputName = newVal.column;
-      },
       exportSheet() {
-        const table = exportColumns.makeTable(this.keyColumn, this.allKeys, this.selectedColumns, this.dropEmptyStudents);
+        const table = exportColumns.makeTable(this.keyColumn, this.allKeys, this.selectedColumns, this.dropEmptyStudents, this.activeFilter);
         const wb = XLSX.utils.book_new(), ws = XLSX.utils.aoa_to_sheet(table);
         XLSX.utils.book_append_sheet(wb, ws, 'Output');
         XLSX.writeFile(wb, 'output.xlsx');
+      },
+      updateFilter(val) {
+        this.currentFilter = val;
       }
     },
     computed: {
+      activeFilter() {
+        if (this.addFilter) {
+          return this.currentFilter;
+        }
+        return null;
+      },
       availableColumns() {
         const result = [];
         let idx = 0;
         for (let wb of this.workbooks) {
           for (let frame of wb.frames) {
             for (let column of frame.df.columns) {
-              result.push({wb, frame, column, index: idx++})
+              result.push({type: 'df', wb, frame, column, index: idx++})
             }
           }
+        }
+        if (this.attendance) {
+          result.push({type: 'attendance-bool', column: 'Attendance',index: idx++, data: this.attendance});
+          result.push({type: 'attendance-cat', column: 'Attendance Status',index: idx++, data: this.attendance});
+          result.push({type: 'attendance-count', column: 'Attendance Count',index: idx++, data: this.attendance});
         }
         return result;
       },
@@ -193,7 +196,6 @@
       selectedColumns() {
         const result = [];
         for (let oc of this.outputColumns) {
-          console.log(oc);
           const colIndex = oc.outputColumn.index;
           const col = this.availableColumns[colIndex];
           const name = oc.outputName;
@@ -203,6 +205,12 @@
       },
       cantExport() {
         return !this.keyColumn || this.outputColumns.length == 0;
+      },
+      filterLabel() {
+        if (this.addFilter) {
+          return 'Only students where the following condition holds are included:';
+        }
+        return 'All students are included';
       }
     },
     watch: {
