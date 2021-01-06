@@ -232,7 +232,7 @@
         if (this.sourceBook) {
           for (let frame of this.sourceBook.frames) {
             for (let column of frame.df.columns) {
-              result.push({wb: this.sourceBook, frame, column, index: idx++})
+              result.push({wb: this.sourceBook, frame, column, index: idx++, type: 'df'})
             }
           }
         }

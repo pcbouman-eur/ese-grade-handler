@@ -77,10 +77,10 @@ function injectResults(column, wb, gradingPolicy, identityConfig, attendance) {
             // Proceed
             const processed = new Set();
             const erna_dataset = exportColumns.columnToDataset(column, OUTPUT_KEY);
-            console.log(column, OUTPUT_KEY, erna_dataset);
             const std_dataset = {};
             for (let [key, val] of Object.entries(erna_dataset)) {
-                std_dataset[identityConfig.convert(OUTPUT_KEY, SHEET_KEY, key)] = val;
+                const conv_key = identityConfig.convert(OUTPUT_KEY, SHEET_KEY, key);
+                std_dataset[conv_key] = val;
             }
             const range = XLSX.utils.decode_range(sheet['!ref']);
             for (let row = FIRST_ROW; row <= range.e.r; row++) {
@@ -97,7 +97,7 @@ function injectResults(column, wb, gradingPolicy, identityConfig, attendance) {
                 if (id) {
                     processed.add(id);
                     const result = std_dataset[id];
-                    console.log(result, id, std_dataset);
+                    //console.log(result, id, std_dataset);
                     rescell.v = resultPreflight(id, result, errors, warnings, gradingPolicy, failedAtt);
                 }
             }

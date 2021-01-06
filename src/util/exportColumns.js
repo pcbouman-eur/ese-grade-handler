@@ -1,4 +1,5 @@
 function columnToDataset(col, outputKey, allKeys) {
+    console.log(col);
     if (col.type == 'df') {
         const col_keys = col.frame.keys[outputKey].keys;
         const col_data = col.frame.df[col.column].data;

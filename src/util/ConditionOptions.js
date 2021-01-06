@@ -67,7 +67,7 @@ const options = [
         comparison: (v) => v
     },
     {
-        label: 'is not a truthy value',
+        label: 'is a falsy value',
         cmpType: 'unary',
         comparison: (v) => !v
     }
