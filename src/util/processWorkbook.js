@@ -57,6 +57,36 @@ function processWorkbook(workbook) {
     return {frames, skipped};
 }
 
+const CANVAS_SIS_COL = 'SIS User ID';
+
+function processCanvasWorkbook(workbook) {
+    const frames = [], skipped = [];
+    if (workbook.SheetNames && workbook.SheetNames.length == 1) {
+        let error = 'No suitable key column found';
+        try {
+            const df = sheetToDataframe(workbook.Sheets[workbook.SheetNames[0]], 1, 3);
+            // Kind of weird way to get rid of NaN users (like Test Students)
+            df.query({column: CANVAS_SIS_COL, is: '>', to: '', inplace: true});
+            const keys = findKeyColumns(df);
+            if (Object.keys(keys).length > 0) {
+                frames.push({sheetName: 'Canvas Grades', df, keys});
+                error = undefined;
+            }
+        }
+        catch (err) {
+            console.log(err);
+            error = 'Sheet has invalid structure';
+        }
+        if (error) {
+            skipped.push({sheetName: 'Canvas Grades', error});
+        }
+    }
+    else {
+        skipped.push({sheetName: 'All', error: 'Unexpected structure in sheet'});
+    }
+    return {frames, skipped};
+}
+
 const USER_KEY = 'User';
 const SHEET_KEY = 'Attendance';
 const EXEMPTION_KEY = 'Vrijstelling';
@@ -119,4 +149,4 @@ function processAttendanceWorkbook(workbook) {
     return {sessions: sessionKeys, data, duplicates, threshold};
 }
 
-export {processWorkbook, processAttendanceWorkbook};
+export {processWorkbook, processCanvasWorkbook, processAttendanceWorkbook};

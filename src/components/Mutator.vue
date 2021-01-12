@@ -2,23 +2,22 @@
   <v-container>
     <v-row align="center" justify="center">
       <v-col cols="6">
-        <h2>Inject Results</h2>
-        <p>Read final course results from one dataset and inject those results
-           into the official SPD spreadsheet to be loaded into Osiris.
-           The free version of SheetJS strips the styling and layout from the
-           output spreadsheet. I am not sure if that is a problem for SPD,
-           but it is easy to copy paste the results in the official sheet to
-           work around this.
+        <h2>Mutate Results</h2>
+        <p>Injected updated course results from one dataset and into a previously
+           submitted SPD spreadsheet to be loaded into Osiris, as well as
+           previously submitted mutation spreadsheets.
+           Only the results that have changed are exported.
         </p>
       </v-col>
     </v-row>
     <v-row>
       <v-col cols="6">
-        <h4>Input Spreadsheets (Course Results)</h4>
+        <h4>Input Spreadsheets (Updated Course Results)</h4>
         <v-btn color="primary" @click="clickOpen">Select Source Spreadsheet</v-btn>
         <input type="file" style="display: none" ref="openFileInput"
                 accept=".xlsx" @change="fileChosen" />
-
+        &nbsp;
+        <AttendancePanel v-model="attendance" />
         <br />
         <v-card v-if="sourceBook">
           <v-card-title>{{sourceBook.filename}}</v-card-title>
@@ -32,12 +31,28 @@
             </v-alert>              
           </v-card-text>
         </v-card>
-        <AttendancePanel v-model="attendance" />
+        <v-card>
+          <v-card-title>Target Spreadsheet (as provided by SPD)</v-card-title>
+          <v-card-text>
+            <h5 v-if="targetData">Target Spreadsheet: {{targetData.name}}</h5>
+            <h5 v-else>Target Spreadsheet: not set</h5>
+          </v-card-text>
+          <v-card-actions>
+            <v-btn color="primary" @click="clickOpenTarget">Set Target Spreadsheet</v-btn>
+          </v-card-actions>
+        </v-card>
+        <v-btn color="primary" @click="clickAddMutation">Add Mutations</v-btn>
+        <input type="file" style="display: none" ref="addMutations"
+                accept=".xlsx" @change="addMutationsChosen" />
+        
+        <template v-for="(mut,mutIdx) in mutations">
+          <v-card :key="'mut-'+mutIdx">
+            <v-card-title>Mutation {{mutIdx + 1}} - {{mut.name}}</v-card-title>
+            <v-card-subtitle>Date: {{mut.date}}, Entries: {{Object.keys(mut.data.entries).length}}</v-card-subtitle>
+          </v-card>
+        </template>
       </v-col>
       <v-col cols=6>
-        <h4>Target Spreadsheet (as provided by SPD)</h4>
-        <v-btn color="primary" @click="clickOpenTarget">Set Target Spreadsheet</v-btn>
-        &nbsp;
         <v-btn color="primary" @click="downloadResult" :disabled="!injectionResults">
           Export Results</v-btn>
         &nbsp;
@@ -47,8 +62,12 @@
                 accept=".xlsx" @change="fileTargetChosen" />
         <v-switch label="Invalid result for students with insufficient attendance" v-if="attendance" v-model="useAttendance" />
         
-        <h5 v-if="targetFilename">Target Spreadsheet: {{targetFilename}}</h5>
-        <h5 v-else>Target Spreadsheet: not set</h5>
+        <v-card v-if="updatedResults">
+          <v-card-text>
+            {{updatedResults.data}}
+          </v-card-text>
+        </v-card>
+
         <v-select
           class="margin-top"
           :disabled="availableColumns.length == 0"
@@ -112,11 +131,11 @@
   import {processWorkbook} from '../util/processWorkbook';
   import GradingPolicy from '../util/GradingPolicy';
   import IdentityConfig from '../util/IdentityConfig';
-  import {injectResults} from '../util/injectResults';
+  import {readResultEntries, processResult, mutateResults} from '../util/injectResults';
   import AttendancePanel from './AttendancePanel';
 
   export default {
-    name: 'Injector',
+    name: 'Mutator',
     components: {
       AttendancePanel
     },
@@ -126,7 +145,8 @@
       sourceBook: null,
       sourceColumn: null,
       rawTarget: null,
-      targetFilename: null,
+      targetData: null,
+      mutations: [],
       dropEmptyStudents: false
     }),
     methods: {
@@ -135,6 +155,9 @@
       },
       clickOpenTarget() {
         this.$refs.openFileTarget.click();
+      },
+      clickAddMutation() {
+        this.$refs.addMutations.click();
       },
        fileChosen(ev) {
         if (ev.target.files[0]) {
@@ -159,10 +182,45 @@
           reader.onload = (ev2) => {
             this.rawTarget = new Uint8Array(ev2.target.result);
             this.targetFilename = file.name;
+            const workbook = XLSX.read(this.rawTarget, {type: 'array'});
+            const res = readResultEntries(workbook);
+            const data = {name: file.name,
+                          lastModified: file.lastModified,
+                          date: new Date(file.lastModified),
+                          data: res};
+            this.targetData = data;
           };
           reader.readAsArrayBuffer(file);
         }
-      },      
+      },
+       addMutationsChosen(ev) {
+        if (ev.target.files[0]) {
+          const file = ev.target.files[0];
+          console.log(file);
+          const reader = new FileReader();
+          reader.onload = (ev2) => {
+            const data = new Uint8Array(ev2.target.result);
+            const workbook = XLSX.read(data, {type: 'array'});
+            const res = readResultEntries(workbook);
+            const mutation = {name: file.name,
+                              lastModified: file.lastModified,
+                              date: new Date(file.lastModified),
+                              data: res};
+            this.mutations.push(mutation);
+          };
+          reader.readAsArrayBuffer(file);
+        }
+        // if (ev.target.files[0]) {
+        //   this.rawTarget = null;
+        //   this.target = null;
+        //   const file = ev.target.files[0];
+        //   const reader = new FileReader();
+        //   reader.onload = (ev2) => {
+        //     this.rawTarget = new Uint8Array(ev2.target.result);
+        //     this.targetFilename = file.name;
+        //   };
+        //   reader.readAsArrayBuffer(file);
+       },      
       availableColumnToText(c) {
         //console.log(c);
         if (c.wb && c.wb.filename) {
@@ -212,15 +270,59 @@
       }
     },
     computed: {
+      oldResults() {
+        // TODO: use date information rather than order?
+        let result = {};
+        if (this.targetData) {
+          result = {...result, ...this.targetData.data.entries};
+          console.log(this.targetData);
+          for (const mut of this.mutations) {
+            console.log(mut);
+            result = {...result, ...mut.data.entries};
+          }
+        }
+        return result;
+      },
+      updatedResults() {
+        if (this.selectedColumn) {
+          const passAtt = this.attendance && this.useAttendance ? this.attendance : null;
+          const rawNewResults = processResult(this.selectedColumn, GradingPolicy, IdentityConfig, passAtt);
+          const newResults = rawNewResults.data;
+          const allStudents = new Set();
+          Object.keys(newResults).forEach(i => allStudents.add(i));
+          Object.keys(this.oldResults).forEach(i => allStudents.add(i));
+          const result = {};
+          for (const student of allStudents) {
+            const newValue = newResults[student];
+            const newMissing = newValue === undefined || newValue == GradingPolicy.missingValue;
+            const oldEntry = this.oldResults[student];
+            const oldValue = oldEntry ? oldEntry.result : undefined;
+            const oldMissing = oldValue === undefined || oldValue == GradingPolicy.missingValue;
+            if (oldValue != newValue) {
+              if (newMissing && oldMissing) {
+                continue;
+              }
+              else if (newMissing) {
+                result[student] = GradingPolicy.missingValue;
+              }
+              else {
+                result[student] = newValue;
+              }
+            }
+          }
+          return result;
+        }
+        return null;
+      },
       injectionResults() {
-        if (this.rawTarget && this.selectedColumn) {
+        if (this.rawTarget && this.updatedResults) {
             try {
               const wb = XLSX.read(this.rawTarget, {type: 'array', cellStyles:true});
-              const passAtt = this.attendance && this.useAttendance ? this.attendance : null;
-              const result = injectResults(this.selectedColumn, wb, GradingPolicy, IdentityConfig, passAtt);
+              const result = mutateResults(this.updatedResults, wb);
               return result;
             }
             catch (err) {
+              console.log(err);
               return {errors: ['Error while processing target spreadsheet: ' + err.message]};
             }
         }

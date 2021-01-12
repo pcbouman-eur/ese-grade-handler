@@ -16,8 +16,11 @@
       <v-col cols="6">
         <h4>Input Spreadsheets</h4>
         <v-btn color="primary" @click="clickOpen">Add Spreadsheet</v-btn>
+        <v-btn color="primary" @click="clickOpenCanvas">Add Canvas Grades</v-btn>
         <input type="file" style="display: none" ref="openFileInput"
                 accept=".xlsx" @change="fileChosen" />
+        <input type="file" style="display: none" ref="openCanvasInput"
+                accept=".csv" @change="canvasFileChosen" />                
         <br />
         <div v-for="book in workbooks" :key="book.filename">
           <h3>{{book.filename}}</h3>
@@ -85,7 +88,7 @@
 
 <script>
   import XLSX from 'xlsx';
-  import {processWorkbook} from '../util/processWorkbook';
+  import {processWorkbook, processCanvasWorkbook} from '../util/processWorkbook';
   import exportColumns from '../util/exportColumns';
   import AttendancePanel from './AttendancePanel';
   import SelectColumn from './SelectColumn';
@@ -109,6 +112,9 @@
       clickOpen() {
         this.$refs.openFileInput.click();
       },
+      clickOpenCanvas() {
+        this.$refs.openCanvasInput.click();
+      },      
       fileChosen(ev) {
         if (ev.target.files[0]) {
           const file = ev.target.files[0];
@@ -124,6 +130,21 @@
           reader.readAsArrayBuffer(file);
         }
       },
+      canvasFileChosen(ev) {
+        if (ev.target.files[0]) {
+          const file = ev.target.files[0];
+          const reader = new FileReader();
+          reader.onload = (ev2) => {
+            const data = new Uint8Array(ev2.target.result);
+            const workbook = XLSX.read(data, {type: 'array'});
+            const process = processCanvasWorkbook(workbook);
+            const wb = {filename: file.name, workbook, ...process};
+            wb.frames.forEach(frame => frame.includeStudents = true);
+            this.workbooks.push(wb);
+          };
+          reader.readAsArrayBuffer(file);
+        }
+      },      
       addOutputCol() {
         this.outputColumns.push(
           {

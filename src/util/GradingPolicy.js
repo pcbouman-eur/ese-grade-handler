@@ -1,3 +1,5 @@
+const THRESHOLD = 10e-8;
+
 const GradingPolicy = {
     alternatives: ['VD', 'NVD', 'VR', 'GGR', 'ONV', 'NO', 'FR'],
     missingValue: 'NO',
@@ -5,7 +7,7 @@ const GradingPolicy = {
     minGrade: 1,
     maxGrade: 10,
     roundingRule(num) {
-        return Math.floor(num*10)/10;
+        return Math.floor(THRESHOLD + num*10)/10;
     },
     truncateRule(num) {
         return Math.max(this.minGrade, Math.min(this.maxGrade, num));

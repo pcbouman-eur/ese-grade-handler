@@ -10,6 +10,7 @@
       </div>
 
       <v-spacer></v-spacer>
+      <v-btn color="error" @click="refresh">Reset</v-btn>
     </v-app-bar>
 
     <v-main>
@@ -17,10 +18,12 @@
         <v-tab>Welcome</v-tab>
         <v-tab>Combiner</v-tab>
         <v-tab>Injector</v-tab>
+        <v-tab>Mutator</v-tab>
       </v-tabs>
       <Welcome v-if="currentTab == 0" />
       <Combiner v-else-if="currentTab == 1" />
       <Injector v-else-if="currentTab == 2" />
+      <Mutator v-else-if="currentTab == 3" />
     </v-main>
   </v-app>
 </template>
@@ -29,6 +32,7 @@
 import Welcome from './components/Welcome';
 import Combiner from './components/Combiner';
 import Injector from './components/Injector';
+import Mutator from './components/Mutator';
 
 export default {
   name: 'App',
@@ -36,11 +40,17 @@ export default {
   components: {
     Combiner,
     Injector,
-    Welcome
+    Welcome,
+    Mutator
   },
 
   data: () => ({
     currentTab: 0
   }),
+  methods: {
+    refresh() {
+      window.location.reload();
+    }
+  }
 };
 </script>
