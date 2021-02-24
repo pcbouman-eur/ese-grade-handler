@@ -216,8 +216,8 @@ function readResultEntries(wb) {
             const res_ref = XLSX.utils.encode_cell({ c: RES_COL_INDEX, r: row });
             const idcell = sheet[id_ref];
             const rescell = sheet[res_ref];
-            const key = idcell.v;
-            const result = rescell.v;
+            const key = idcell ? idcell.v : undefined;
+            const result = rescell ? rescell.v : undefined;
             if (!key) {
                 continue;
             }

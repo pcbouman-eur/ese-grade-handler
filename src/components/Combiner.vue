@@ -18,7 +18,7 @@
         <v-btn color="primary" @click="clickOpen">Add Spreadsheet</v-btn>
         <v-btn color="primary" @click="clickOpenCanvas">Add Canvas Grades</v-btn>
         <input type="file" style="display: none" ref="openFileInput"
-                accept=".xlsx" @change="fileChosen" />
+                accept=".xlsx,.csv" @change="fileChosen" />
         <input type="file" style="display: none" ref="openCanvasInput"
                 accept=".csv" @change="canvasFileChosen" />                
         <br />

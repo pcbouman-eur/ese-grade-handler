@@ -10,6 +10,11 @@
            but it is easy to copy paste the results in the official sheet to
            work around this.
         </p>
+        <p>
+            <strong>Note:</strong> attendance data is not required; if you don't
+            have mandatory attendance, you can just skip adding the attendance
+            spreadsheet.
+        </p>
       </v-col>
     </v-row>
     <v-row>

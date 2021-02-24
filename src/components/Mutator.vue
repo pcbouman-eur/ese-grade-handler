@@ -3,21 +3,28 @@
     <v-row align="center" justify="center">
       <v-col cols="6">
         <h2>Mutate Results</h2>
-        <p>Injected updated course results from one dataset and into a previously
-           submitted SPD spreadsheet to be loaded into Osiris, as well as
-           previously submitted mutation spreadsheets.
-           Only the results that have changed are exported.
+        <p>If course results have been established, this workflow can compare
+          the submitted grades to a spreadsheet with updated course results.
+          The output is an SPD spreadsheet which only contains the results
+          that have changed. If you already made mutations before, it is also
+          possible to add some of these mutation spreadsheets submitted to SPD.
+          This way, the output spreadsheet generated only contains the course
+          results that must be mutated by SPD.
         </p>
       </v-col>
     </v-row>
     <v-row>
       <v-col cols="6">
-        <h4>Input Spreadsheets (Updated Course Results)</h4>
-        <v-btn color="primary" @click="clickOpen">Select Source Spreadsheet</v-btn>
-        <input type="file" style="display: none" ref="openFileInput"
-                accept=".xlsx" @change="fileChosen" />
-        &nbsp;
-        <AttendancePanel v-model="attendance" />
+        <v-card>
+        <v-card-title>Input Spreadsheet: (Updated) Course Results</v-card-title>
+        <v-card-text>
+          <v-btn color="primary" @click="clickOpen">Select Source Spreadsheet</v-btn>
+          <input type="file" style="display: none" ref="openFileInput"
+                  accept=".xlsx" @change="fileChosen" />
+          &nbsp;
+          <AttendancePanel v-model="attendance" />
+        </v-card-text>
+        </v-card>
         <br />
         <v-card v-if="sourceBook">
           <v-card-title>{{sourceBook.filename}}</v-card-title>
@@ -32,25 +39,31 @@
           </v-card-text>
         </v-card>
         <v-card>
-          <v-card-title>Target Spreadsheet (as provided by SPD)</v-card-title>
+          <v-card-title>Injection Target Spreadsheet (provided by/submitted to SPD)</v-card-title>
           <v-card-text>
-            <h5 v-if="targetData">Target Spreadsheet: {{targetData.name}}</h5>
-            <h5 v-else>Target Spreadsheet: not set</h5>
+            <v-card flat>
+              <v-card v-if="targetData" flat>
+                <v-card-title>Injection Target: {{targetData.name}}</v-card-title>
+                <v-card-subtitle>Date: {{targetData.date}}, <br /> Entries: {{Object.keys(targetData.data.entries).length}}</v-card-subtitle>
+              </v-card>              
+           <v-alert v-else type="warning">Injection Target spreadsheet not set</v-alert>
+          </v-card>
+          <template v-for="(mut,mutIdx) in mutations">
+            <v-card :key="'mut-'+mutIdx" flat>
+              <v-card-title>Mutation {{mutIdx + 1}} - {{mut.name}}</v-card-title>
+              <v-card-subtitle>Date: {{mut.date}}, <br />Entries: {{Object.keys(mut.data.entries).length}}</v-card-subtitle>
+            </v-card>
+          </template>
           </v-card-text>
           <v-card-actions>
             <v-btn color="primary" @click="clickOpenTarget">Set Target Spreadsheet</v-btn>
+            &nbsp;
+            <v-btn color="primary" @click="clickAddMutation">Add Mutations</v-btn>
           </v-card-actions>
         </v-card>
-        <v-btn color="primary" @click="clickAddMutation">Add Mutations</v-btn>
+        
         <input type="file" style="display: none" ref="addMutations"
                 accept=".xlsx" @change="addMutationsChosen" />
-        
-        <template v-for="(mut,mutIdx) in mutations">
-          <v-card :key="'mut-'+mutIdx">
-            <v-card-title>Mutation {{mutIdx + 1}} - {{mut.name}}</v-card-title>
-            <v-card-subtitle>Date: {{mut.date}}, Entries: {{Object.keys(mut.data.entries).length}}</v-card-subtitle>
-          </v-card>
-        </template>
       </v-col>
       <v-col cols=6>
         <v-btn color="primary" @click="downloadResult" :disabled="!injectionResults">
