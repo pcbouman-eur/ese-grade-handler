@@ -57,7 +57,7 @@ function checkAttendanceFailed(attendance, id, attendanceMap) {
         return true;
     }
     const data = attendance.data[convId];
-    console.log(data);
+    //console.log(data);
     if (data.exemption) {
         return false;
     }
