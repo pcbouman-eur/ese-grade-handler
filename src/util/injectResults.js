@@ -57,6 +57,10 @@ function checkAttendanceFailed(attendance, id, attendanceMap) {
         return true;
     }
     const data = attendance.data[convId];
+    console.log(data);
+    if (data.exemption) {
+        return false;
+    }
     return data.sessionsPresent.size < attendance.threshold;
 }
 
@@ -118,6 +122,7 @@ function injectResults(column, wb, gradingPolicy, identityConfig, attendance) {
                 const result = std_dataset[id];
                 //console.log(result, id, std_dataset);
                 rescell.v = resultPreflight(id, result, errors, warnings, gradingPolicy, failedAtt);
+                console.log(id, rescell.v);
             }
         }
 
