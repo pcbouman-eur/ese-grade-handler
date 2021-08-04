@@ -49,9 +49,11 @@ function processWorkbook(workbook) {
         }
         catch (err) {
             error = 'Sheet has invalid structure';
+            console.log(err);
         }
         if (error) {
             skipped.push({sheetName, error});
+            console.log({sheetName, error});
         }
     }
     return {frames, skipped};

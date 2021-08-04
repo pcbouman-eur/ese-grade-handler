@@ -12,7 +12,7 @@ function sheetToDataframe(worksheet, header_index=1, data_index=2) {
                     if (worksheet[cell_ref]) {
                     const header = worksheet[cell_ref].v;
                     if (header) {
-                        column_names.push(header.trim());
+                        column_names.push(header.toString().trim());
                         column_indices.push(C);
                     }
                 }
