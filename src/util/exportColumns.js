@@ -1,7 +1,25 @@
+import IdentityConfig from "./IdentityConfig";
+
+function extractKeys(keys, outputKey) {
+    if (keys[outputKey]) {
+        return keys[outputKey].keys;
+    }
+    for (const conv_spec of IdentityConfig.conversions) {
+        if (conv_spec.to == outputKey) {
+            for (const src_key of conv_spec.from) {
+                if (keys[src_key]) {
+                    return keys[src_key].keys.map(v => IdentityConfig.convert(src_key, outputKey, v));
+                }
+            }
+        }
+    }
+    throw 'Unable to convert data from this from to "'+outputKey+'"';
+}
+
 function columnToDataset(col, outputKey, allKeys) {
     console.log(col);
     if (col.type == 'df') {
-        const col_keys = col.frame.keys[outputKey].keys;
+        const col_keys = extractKeys(col.frame.keys, outputKey);
         const col_data = col.frame.df[col.column].data;
         const pairs = {};
         col_keys.forEach((key, idx) => {

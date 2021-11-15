@@ -46,7 +46,7 @@
         <v-btn color="primary" @click="downloadResult" :disabled="!injectionResults">
           Export Results</v-btn>
         &nbsp;
-        <v-btn color="primary" @click="downloadMissing" :disabled="!injectionResults || injectionResults.missing.length == 0">
+        <v-btn color="primary" @click="downloadMissing" :disabled="!injectionResults || !injectionResults.missing || injectionResults.missing.length == 0">
           Export Missing</v-btn>          
         <input type="file" style="display: none" ref="openFileTarget"
                 accept=".xlsx" @change="fileTargetChosen" />
@@ -63,7 +63,7 @@
           v-model="sourceColumn"
           label="Source Column"
           outlined />
-        <v-alert v-if="injectionResults && injectionResults.missing.length > 0" type="warning">
+        <v-alert v-if="injectionResults && injectionResults.missing && injectionResults.missing.length > 0" type="warning">
           There are {{injectionResults.missing.length}} students who were missing
           in the injection target.
         </v-alert>
@@ -87,7 +87,7 @@
             </v-expansion-panel>
           </v-expansion-panels>
         </template>
-        <template v-if="injectionResults && injectionResults.warnings.length > 0">
+        <template v-if="injectionResults && injectionResults.warnings && injectionResults.warnings.length > 0">
           <br />
           <v-alert type="warning">
             There were {{injectionResults.warnings.length}} warnings while injecting results.
@@ -204,7 +204,7 @@
         }
       },
       downloadMissing() {
-        if (this.injectionResults && this.injectionResults.missing.length > 0) {
+        if (this.injectionResults && this.injectionResults.missing && this.injectionResults.missing.length > 0) {
           const table = [['Student','Result']];
           for (let entry of this.injectionResults.missing) {
             table.push([entry.id, entry.result]);
@@ -226,6 +226,7 @@
               return result;
             }
             catch (err) {
+              console.log(err);
               return {errors: ['Error while processing target spreadsheet: ' + err.message]};
             }
         }

@@ -99,12 +99,13 @@ function injectResults(column, wb, gradingPolicy, identityConfig, attendance) {
     if (sheet && checkSheetStructure(sheet, errors)) {
         // Proceed
         const processed = new Set();
-        const erna_dataset = exportColumns.columnToDataset(column, OUTPUT_KEY);
-        const std_dataset = {};
-        for (let [key, val] of Object.entries(erna_dataset)) {
-            const conv_key = identityConfig.convert(OUTPUT_KEY, SHEET_KEY, key);
-            std_dataset[conv_key] = val;
-        }
+        // const erna_dataset = exportColumns.columnToDataset(column, OUTPUT_KEY);
+        // const std_dataset = {};
+        // for (let [key, val] of Object.entries(erna_dataset)) {
+        //     const conv_key = identityConfig.convert(OUTPUT_KEY, SHEET_KEY, key);
+        //     std_dataset[conv_key] = val;
+        // }
+        const std_dataset = exportColumns.columnToDataset(column, SHEET_KEY);
         const range = XLSX.utils.decode_range(sheet['!ref']);
         for (let row = FIRST_ROW; row <= range.e.r; row++) {
             const id_ref = XLSX.utils.encode_cell({ c: ID_COL_INDEX, r: row });

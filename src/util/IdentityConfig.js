@@ -3,6 +3,9 @@ const IdentityConfig = {
             { name: 'erna', pattern: /\d{6}[a-z]{2}/g},
             { name: 'student number', pattern: /\d{6}/g}
     ],
+    conversions: [
+        {to: 'student number', from: ['erna']}
+    ],
     convert(fromType, toType, val) {
         // You'd probably want a fourth argument with some current database?
         if (fromType == toType) {
