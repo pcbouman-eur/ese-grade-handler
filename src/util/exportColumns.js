@@ -111,6 +111,7 @@ function makeTable(outputKey, allKeys, outputCols, dropEmptyStudents, filter) {
     const table = [header];
 
     // TODO: data
+    console.log(allKeys);
     for (const key of allKeys) {
         if (!predicate(key)) {
             continue;
@@ -119,6 +120,7 @@ function makeTable(outputKey, allKeys, outputCols, dropEmptyStudents, filter) {
         let empty = true;
         for (const ds of datasets) {
             const val = ds[key];
+            console.log(ds, key, val);
             if (val || val === 0 || val === false) {
                 row.push(val);
                 empty=false;

@@ -89,12 +89,23 @@ function processCanvasWorkbook(workbook) {
     return {frames, skipped};
 }
 
-const USER_KEY = 'User';
+const USER_PATTERN = /(user|student|erna)/i;
+const USER_PATTERN_HELP = "a column named either 'user', 'student' or 'erna'"
 const SHEET_KEY = 'Attendance';
-const EXEMPTION_KEY = 'Vrijstelling';
-const SESSION_PREFIX = 'Sessie';
+const EXEMPTION_PATTERN = /(vrijstelling|exemption)/i;
+const EXEMPTION_PATTERN_HELP = "a column named 'vrijstelling' or 'exemption'";
+const SESSION_PATTERN = /(s|sessie|session)_?(\d+)/i;
 const FIRST_ROW = 6;
 const DEFAULT_MINIMUM_PERCENTAGE = 0.7;
+
+function findColumnByPattern(df, pat) {
+    for (const col of df.columns.values()) {
+        if (col.match(pat)) {
+            return col;
+        }
+    }
+    return null;
+}
 
 function processAttendanceWorkbook(workbook) {
     const attSheet = workbook.Sheets[SHEET_KEY];
@@ -103,20 +114,23 @@ function processAttendanceWorkbook(workbook) {
     }
     const df = sheetToDataframe(attSheet,FIRST_ROW,FIRST_ROW+1);
 
-    const userCol = df[USER_KEY].data;
-    if (!userCol) {
-        return {error: 'A column with name '+USER_KEY+' was expected but not found.'};
+    const USER_KEY = findColumnByPattern(df, USER_PATTERN);
+    const EXEMPTION_KEY = findColumnByPattern(df, EXEMPTION_PATTERN);
+    
+    if (!USER_KEY) {
+        return {error: 'No user column found. Expected '+USER_PATTERN_HELP};
+    }
+    if (!EXEMPTION_KEY) {
+        return {error: 'No exemption column found. Expected '+EXEMPTION_PATTERN_HELP};
     }
 
+    const userCol = df[USER_KEY].data;
     const exemptionCol = df[EXEMPTION_KEY].data;
-    if (!exemptionCol) {
-        return {error: 'A column with name '+EXEMPTION_KEY+' was expected but not found.'};
-    }
 
     let sessionKeys = [];
     let sessionCols = {};
     for (let col of df.columns) {
-        if (col.startsWith(SESSION_PREFIX)) {
+        if (col.match(SESSION_PATTERN)) {
             sessionKeys.push(col);
             sessionCols[col] = df[col].data;
         }
