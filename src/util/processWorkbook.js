@@ -94,7 +94,7 @@ const USER_PATTERN_HELP = "a column named either 'user', 'student' or 'erna'"
 const SHEET_KEY = 'Attendance';
 const EXEMPTION_PATTERN = /(vrijstelling|exemption)/i;
 const EXEMPTION_PATTERN_HELP = "a column named 'vrijstelling' or 'exemption'";
-const SESSION_PATTERN = /(s|sessie|session)_?(\d+)/i;
+const SESSION_PATTERN = /(s|sessie|session)[_ ]*(\d+)/i;
 const FIRST_ROW = 6;
 const DEFAULT_MINIMUM_PERCENTAGE = 0.7;
 
