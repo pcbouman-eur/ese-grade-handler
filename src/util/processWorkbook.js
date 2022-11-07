@@ -159,6 +159,10 @@ function processAttendanceWorkbook(workbook) {
             }
         }
         data[userName] = {userName, exemption, sessionsPresent};
+        
+        // TODO: This is kind of sloppy, and assumes ERNA's and student numbers do not coincide
+        const stdNum = IdentityConfig.convert('erna', 'student number', userName);
+        data[stdNum] = data[userName];
     }
 
     const threshold = Math.ceil(DEFAULT_MINIMUM_PERCENTAGE * sessionKeys.length);

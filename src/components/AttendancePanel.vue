@@ -2,7 +2,7 @@
   <div style="margin-top: 1em">
     <v-btn color="primary" @click="clickAttOpen">Select Attendance Spreadsheet</v-btn>
     <input type="file" style="display: none" ref="openAttFileInput"
-            accept=".xls" @change="attFileChosen" />
+            accept=".xls,.xlsx" @change="attFileChosen" />
     <br />
     <v-card v-if="value">
       <v-card-title>Attendance data</v-card-title>
