@@ -6,6 +6,7 @@ const GradingPolicy = {
     invalidResult: 'GGR',
     minGrade: 1,
     maxGrade: 10,
+    decimalSeparator: ',',
     roundingRule(num) {
         return Math.floor(THRESHOLD + num*10)/10;
     },
@@ -22,7 +23,7 @@ const GradingPolicy = {
         let num = parseFloat(value);
         num = this.roundingRule(num);
         num = this.truncateRule(num);
-        return num.toFixed(1);
+        return num.toFixed(1).replace('.', this.decimalSeparator);
     },
     checkError(value) {
         if (this.alternatives.includes(value)) {
