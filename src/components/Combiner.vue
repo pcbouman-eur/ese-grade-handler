@@ -15,12 +15,15 @@
     <v-row>
       <v-col cols="6">
         <h4>Input Spreadsheets</h4>
-        <v-btn color="primary" @click="clickOpen">Add Spreadsheet</v-btn>
-        <v-btn color="primary" @click="clickOpenCanvas">Add Canvas Grades</v-btn>
+        <v-btn color="primary" @click="clickOpen" class="addBtn">Add Spreadsheet</v-btn>
+        <v-btn color="primary" @click="clickOpenCanvas" class="addBtn">Add Canvas Grades</v-btn>
+        <v-btn color="primary" @click="clickOpenSpd" class="addBtn">Add SPD Grades</v-btn>
         <input type="file" style="display: none" ref="openFileInput"
                 accept=".xlsx,.csv" @change="fileChosen" />
         <input type="file" style="display: none" ref="openCanvasInput"
                 accept=".csv" @change="canvasFileChosen" />                
+        <input type="file" style="display: none" ref="openSpdInput"
+                accept=".xlsx" @change="spdFileChosen" />                                
         <br />
         <div v-for="book in workbooks" :key="book.filename">
           <h3>{{book.filename}}</h3>
@@ -49,32 +52,46 @@
         <v-btn color="primary" :disabled="cantExport" @click="exportSheet">Export Spreadsheet</v-btn>
         <br />
         <v-switch label="Remove students without any results" v-model="dropEmptyStudents" />
-        <div v-if="this.availableKeys.length > 0">
-          <h4>Key Column</h4>
-          <v-select :items="availableKeys"
+
+        <v-card v-if="this.availableKeys.length > 0">
+          <v-container dense class="colContainer">
+            <v-row class="outputCols" dense>            
+          <!-- <h4>Output Column  <v-chip x-small color="danger">delete</v-chip></h4> -->
+              <v-col cols="1" class="dense">
+                <div>Key</div>
+              </v-col>
+              <v-col cols="11" class="dense">
+                <v-select :items="availableKeys"
                     v-model="keyColumn"
                     label="Key type"
                     outlined
                     dense />
-        </div>
-        <div v-for="(col, idx) in outputColumns" :key="'output-'+idx">            
-          <h4>Output Column {{idx+1}}</h4>
-          <v-container class="dense">
-            <v-row>
+              </v-col>
+            </v-row>            
+            <v-row v-for="(col, idx) in outputColumns" :key="'output-'+idx" class="outputCols" dense>            
+          <!-- <h4>Output Column  <v-chip x-small color="danger">delete</v-chip></h4> -->
+              <v-col cols="1" class="dense">
+                <div>Col {{idx+1}}.</div>
+              </v-col>
               <v-col cols="6" class="dense">
                   <SelectColumn v-model="outputColumns[idx]" label="Source Column"
                                 :availableColumns="availableColumns"
                                 :availableKeys="availableKeys" />
               </v-col>
-              <v-col cols="6" class="dense">
+              <v-col cols="4" class="dense">
                 <v-text-field label="Output Column Name"
                               v-model="col.outputName"
                               outlined
                               dense />
               </v-col>
+              <v-col cols="1" class="dense">
+                <v-btn @click="moveColumn(idx, false)" :disabled="idx >= outputColumns.length-1" x-small icon color="primary"><v-icon>mdi-arrow-down</v-icon></v-btn>
+                <v-btn @click="moveColumn(idx, true)"  :disabled="idx == 0" x-small icon color="primary"><v-icon>mdi-arrow-up</v-icon></v-btn>
+                <v-btn @click="deleteColumn(idx)" x-small icon color="error"><v-icon>mdi-delete</v-icon></v-btn>
+              </v-col>
             </v-row>
           </v-container>
-        </div>
+        </v-card>
         <div v-if="this.availableColumns.length > 0">
           <h4>Filter Students</h4>
           <v-switch v-model="addFilter" :label="filterLabel" />
@@ -88,11 +105,14 @@
 
 <script>
   import XLSX from 'xlsx';
-  import {processWorkbook, processCanvasWorkbook} from '../util/processWorkbook';
+  import {processWorkbook, processCanvasWorkbook, processSpdWorkbook} from '../util/processWorkbook';
   import exportColumns from '../util/exportColumns';
   import AttendancePanel from './AttendancePanel';
   import SelectColumn from './SelectColumn';
   import ConditionPanel from './ConditionPanel';
+  import GradingPolicy from '../util/GradingPolicy';
+
+
   
   export default {
     name: 'Combiner',
@@ -115,6 +135,9 @@
       clickOpenCanvas() {
         this.$refs.openCanvasInput.click();
       },      
+      clickOpenSpd() {
+        this.$refs.openSpdInput.click();
+      },            
       fileChosen(ev) {
         if (ev.target.files[0]) {
           const file = ev.target.files[0];
@@ -145,6 +168,22 @@
           reader.readAsArrayBuffer(file);
         }
       },      
+      spdFileChosen(ev) {
+        if (ev.target.files[0]) {
+          const file = ev.target.files[0];
+          const reader = new FileReader();
+          reader.onload = (ev2) => {
+            const data = new Uint8Array(ev2.target.result);
+            const workbook = XLSX.read(data, {type: 'array'});
+            const process = processSpdWorkbook(workbook);
+            const wb = {filename: file.name, workbook, ...process};
+            console.log(wb);
+            wb.frames.forEach(frame => frame.includeStudents = false);
+            this.workbooks.push(wb);
+          };
+          reader.readAsArrayBuffer(file);
+        }
+      },           
       addOutputCol() {
         this.outputColumns.push(
           {
@@ -155,13 +194,27 @@
         );
       },
       exportSheet() {
-        const table = exportColumns.makeTable(this.keyColumn, this.allKeys, this.selectedColumns, this.dropEmptyStudents, this.activeFilter);
+        const table = exportColumns.makeTable(this.keyColumn, this.allKeys, this.selectedColumns,
+           this.dropEmptyStudents, this.activeFilter, GradingPolicy);
         const wb = XLSX.utils.book_new(), ws = XLSX.utils.aoa_to_sheet(table);
         XLSX.utils.book_append_sheet(wb, ws, 'Output');
         XLSX.writeFile(wb, 'output.xlsx');
       },
       updateFilter(val) {
         this.currentFilter = val;
+      },
+      deleteColumn(idx) {
+        this.outputColumns.splice(idx, 1);
+      },
+      moveColumn(idx, up) {
+        if (up) {
+          const elems = [this.outputColumns[idx], this.outputColumns[idx-1]];
+          this.outputColumns.splice(idx -1, 2, ...elems);
+        }
+        else {
+          const elems = [this.outputColumns[idx+1], this.outputColumns[idx]];
+          this.outputColumns.splice(idx, 2, ...elems);
+        }
       }
     },
     computed: {
@@ -220,7 +273,7 @@
           const colIndex = oc.outputColumn.index;
           const col = this.availableColumns[colIndex];
           const name = oc.outputName;
-          result.push({name, data: col});
+          result.push({name, data: col, finalResult: col.finalResult});
         }
         return result;
       },
@@ -251,5 +304,24 @@
 .dense {
   margin: 0;
   padding: 0;
+}
+
+.outputCols {
+  padding-left: 1em;
+  padding-right: 1em;
+}
+
+.colContainer {
+  padding-left: 1em;
+  padding-right: 1em;
+  
+}
+
+.colContainer:first-child {
+  padding-top: 1em;
+}
+
+.addBtn:not(:first-child) {
+  margin-left: 0.5em;
 }
 </style>

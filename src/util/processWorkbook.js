@@ -89,6 +89,34 @@ function processCanvasWorkbook(workbook) {
     return {frames, skipped};
 }
 
+const SPD_SIS_COL = 'Studentnummer';
+
+export function processSpdWorkbook(workbook) {
+    const frames = [], skipped = [];
+    if (workbook.SheetNames && workbook.SheetNames.length == 1) {
+        let error = 'No suitable key column found';
+        try {
+            const df = sheetToDataframe(workbook.Sheets[workbook.SheetNames[0]], 8, 9);
+            console.log(df);
+            // Kind of weird way to get rid of NaN users (like Test Students)
+            df.query({column: SPD_SIS_COL, is: '>', to: '', inplace: true});
+            const keys = findKeyColumns(df);
+            if (Object.keys(keys).length > 0) {
+                frames.push({sheetName: 'SPD Results', df, keys});
+                error = undefined;
+            }
+        }
+        catch (err) {
+            console.log(err);
+            error = 'Sheet has invalid structure';
+        }
+        if (error) {
+            skipped.push({sheetName: 'SPD Results', error});
+        }
+    }
+    return {frames, skipped};
+}
+
 const USER_PATTERN = /(user|student|erna)/i;
 const USER_PATTERN_HELP = "a column named either 'user', 'student' or 'erna'"
 const SHEET_KEY = 'Attendance';
