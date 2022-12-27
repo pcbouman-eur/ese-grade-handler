@@ -25,7 +25,7 @@
             </v-card-text>
             <v-card-actions>
               <v-spacer />
-              <v-btn color="primary" @click="step++">Next</v-btn>                        
+              <v-btn color="primary" @click="next()">Next</v-btn>                        
             </v-card-actions>
           </v-card>
         </v-stepper-content>
@@ -43,9 +43,9 @@
               </v-alert>
             </v-card-text>
             <v-card-actions>
-              <v-btn color="primary" @click="step--">Previous</v-btn>
+              <v-btn color="primary" @click="prev()">Previous</v-btn>
               <v-spacer />
-              <v-btn color="primary" @click="step++">Next</v-btn>                        
+              <v-btn color="primary" @click="next()">Next</v-btn>                        
             </v-card-actions>
           </v-card>
         </v-stepper-content>
@@ -65,14 +65,14 @@
               <p>Please draw your signature below.  This signature will be copied to all generated forms.</p>
               <vueSignature class="signature-box" ref="signature" :w="signatureWidth+'px'" :h="signatureHeight+'px'" />
               <div>
-                <v-btn fab small color="primary" @click="$refs.signature.undo()"><v-icon dark>mdi-undo</v-icon></v-btn>
-                <v-btn fab small color="error" @click="$refs.signature.clear()"><v-icon dark>mdi-delete</v-icon></v-btn>
+                <v-btn class="draw-button" fab small color="primary" @click="$refs.signature.undo()"><v-icon dark>mdi-undo</v-icon></v-btn>
+                <v-btn class="draw-button" fab small color="error" @click="$refs.signature.clear()"><v-icon dark>mdi-delete</v-icon></v-btn>
               </div>
             </v-card-text>
             <v-card-actions>
-              <v-btn color="primary" @click="step--">Previous</v-btn>
+              <v-btn color="primary" @click="prev()">Previous</v-btn>
               <v-spacer />
-              <v-btn color="primary" @click="step++">Next</v-btn>
+              <v-btn color="primary" @click="next()">Next</v-btn>
             </v-card-actions>
           </v-card>
         </v-stepper-content>
@@ -109,9 +109,13 @@
                   <v-progress-circular indeterminate />
                   Generating zip-file with forms
                 </div>
+                <div>
+                  <v-btn block color="primary" :disabled="busy || hasIssues" @click="generateForms()"><v-icon dark>mdi-zip</v-icon> Generate Zip File</v-btn>
+                </div>
             </v-card-text>
             <v-card-actions>
-              <v-btn block color="primary" :disabled="busy || hasIssues" @click="generateForms()"><v-icon dark>mdi-zip</v-icon> Generate Zip File</v-btn>
+              <v-btn color="primary" @click="prev()">Previous</v-btn>
+              <v-spacer />
             </v-card-actions>
           </v-card>
         </v-stepper-content>
@@ -148,34 +152,47 @@
       signatureCheck: false
     }),
     methods: {
+      prev() {
+        this.step--;
+        this.stepperChange();
+      },
+      next() {
+        this.step++;
+        this.stepperChange();
+      },
       generateForms() {
         //const signatureDate = new Date(this.selectedDate).toLocaleDateString('nl-nl');
-        const signatureDate = new Date().toLocaleDateString('nl-nl');
-        const signatureBlob = this.$refs.signature.sig.canvas.toDataURL();
-        const data = [];
-        for (const row of this.spdData.data) {
-          const stdElement = { 
-            courseName: this.courseName,
-            courseCode: this.courseCode,
-            gradeDate: row[2],
-            signatureDate,
-            studentId: row[0],
-            studentName: row[1],
-            studentResult: row[3],
-            teacherName: this.teacherName,
-            signatureBlob,
-            signatureWidth: 0.4*this.signatureWidth,
-            signatureHeight: 0.4*this.signatureHeight,
-          };
-          data.push(stdElement);
-        }
-        const documents = data.map(entry => ({
-          studentid : entry.studentId,
-          document: generateDocument(entry)
-        }));
         this.busy = true;
-        downloadZipFile(documents, 'forms.zip')
-          .finally(() => this.busy = false);
+        new Promise((resolve) => {
+          const signatureDate = new Date().toLocaleDateString('nl-nl');
+          const data = [];
+          const signatureBlob = this.$refs.signature.sig.canvas.toDataURL();
+          for (const row of this.spdData.data) {
+            const stdElement = { 
+              courseName: this.courseName,
+              courseCode: this.courseCode,
+              gradeDate: row[2],
+              signatureDate,
+              studentId: row[0],
+              studentName: row[1],
+              studentResult: row[3],
+              teacherName: this.teacherName,
+              signatureBlob,
+              signatureWidth: 0.59*this.signatureWidth,
+              signatureHeight: 0.59*this.signatureHeight,
+            };
+            data.push(stdElement);
+          }
+          const documents = data.map(entry => ({
+            studentid : entry.studentId,
+            document: generateDocument(entry)
+          }));
+          resolve(documents);
+        })
+        .then( documents => {
+          downloadZipFile(documents, 'forms.zip')
+            .finally(() => this.busy = false);
+        })
       },
       clickOpenSpd() {
         this.$refs.openSpdInput.click();
@@ -246,5 +263,9 @@
 <style scoped>
 .signature-box {
   border: 1px solid black;
+}
+.draw-button {
+  margin-left: 0.5em;
+  margin-top: 0.5em;
 }
 </style>
