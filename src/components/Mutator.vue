@@ -48,12 +48,10 @@
               </v-card>              
            <v-alert v-else type="warning">Injection Target spreadsheet not set</v-alert>
           </v-card>
-          <template v-for="(mut,mutIdx) in mutations">
-            <v-card :key="'mut-'+mutIdx" flat>
-              <v-card-title>Mutation {{mutIdx + 1}} - {{mut.name}}</v-card-title>
-              <v-card-subtitle>Date: {{mut.date}}, <br />Entries: {{Object.keys(mut.data.entries).length}}</v-card-subtitle>
-            </v-card>
-          </template>
+          <v-card v-for="(mut,mutIdx) in mutations" :key="'mut-'+mutIdx" flat>
+            <v-card-title>Mutation {{mutIdx + 1}} - {{mut.name}}</v-card-title>
+            <v-card-subtitle>Date: {{mut.date}}, <br />Entries: {{Object.keys(mut.data.entries).length}}</v-card-subtitle>
+          </v-card>
           </v-card-text>
           <v-card-actions>
             <v-btn color="primary" @click="clickOpenTarget">Set Target Spreadsheet</v-btn>
@@ -299,7 +297,9 @@
       updatedResults() {
         if (this.selectedColumn) {
           const passAtt = this.attendance && this.useAttendance ? this.attendance : null;
+          console.log("Processing results");
           const rawNewResults = processResult(this.selectedColumn, GradingPolicy, IdentityConfig, passAtt);
+          console.log("Results processed");
           const newResults = rawNewResults.data;
           const allStudents = new Set();
           Object.keys(newResults).forEach(i => allStudents.add(i));

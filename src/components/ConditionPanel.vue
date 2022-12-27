@@ -1,7 +1,7 @@
 <template>
   <v-card>
   <v-card-text>
-    <v-container v-if="availableColumns.length > 0" dense>
+    <v-container v-if="availableColumns && availableColumns.length > 0" dense>
       <v-row dense>
         <v-col cols="12" class="extra-dense">
           <SelectColumn v-model="filterCol"
@@ -77,7 +77,7 @@
         }
       },
       init() {
-        if (!this.filterCol) {
+        if (!this.filterCol && this.availableColumns.length > 0) {
           this.filterCol = {
              outputKey: this.availableKeys[0],
              outputColumn: this.availableColumns[0],

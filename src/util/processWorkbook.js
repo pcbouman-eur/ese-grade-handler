@@ -93,10 +93,12 @@ const SPD_SIS_COL = 'Studentnummer';
 
 export function processSpdWorkbook(workbook) {
     const frames = [], skipped = [];
+    let courseCode, courseName;
     if (workbook.SheetNames && workbook.SheetNames.length == 1) {
         let error = 'No suitable key column found';
         try {
-            const df = sheetToDataframe(workbook.Sheets[workbook.SheetNames[0]], 8, 9);
+            const sheet = workbook.Sheets[workbook.SheetNames[0]];
+            const df = sheetToDataframe(sheet, 8, 9);
             console.log(df);
             // Kind of weird way to get rid of NaN users (like Test Students)
             df.query({column: SPD_SIS_COL, is: '>', to: '', inplace: true});
@@ -105,6 +107,9 @@ export function processSpdWorkbook(workbook) {
                 frames.push({sheetName: 'SPD Results', df, keys});
                 error = undefined;
             }
+
+            courseCode = sheet['B1']?.v;
+            courseName = sheet['B2']?.v;
         }
         catch (err) {
             console.log(err);
@@ -114,7 +119,7 @@ export function processSpdWorkbook(workbook) {
             skipped.push({sheetName: 'SPD Results', error});
         }
     }
-    return {frames, skipped};
+    return {frames, skipped, courseCode, courseName};
 }
 
 const USER_PATTERN = /(user|student|erna)/i;

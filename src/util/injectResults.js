@@ -11,7 +11,7 @@ const RES_COL_INDEX = 3;
 const FIRST_ROW = 8;
 
 // TODO: this should definitely be a lot more flexible
-const OUTPUT_KEY = 'erna';
+const OUTPUT_KEY = 'student number';
 const SHEET_KEY = 'student number';
 
 function resultPreflight(id, result, errors, warnings, gradingPolicy, failedAtt) {
@@ -70,6 +70,7 @@ function processResult(column, gradingPolicy, identityConfig, attendance) {
     const std_dataset = {};
     const errors = [], warnings = [];
     for (let [key, result] of Object.entries(erna_dataset)) {
+        console.log(OUTPUT_KEY, SHEET_KEY, key);
         const conv_key = identityConfig.convert(OUTPUT_KEY, SHEET_KEY, key);
         let failedAtt = checkAttendanceFailed(attendance, conv_key, attendanceMap);
         const res = resultPreflight(conv_key, result, errors, warnings, gradingPolicy, failedAtt);
