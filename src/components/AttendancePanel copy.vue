@@ -1,7 +1,11 @@
 <template>
   <div style="margin-top: 1em">
+    <v-btn color="primary" @click="clickAttOpen">Select Attendance Spreadsheet</v-btn>
+    <input type="file" style="display: none" ref="openAttFileInput"
+            accept=".xls,.xlsx" @change="attFileChosen" />
+    <br />
     <v-card v-if="value">
-      <v-card-title>Attendance data loaded</v-card-title>
+      <v-card-title>Attendance data</v-card-title>
       <v-card-text>
         <h5>Attendance data loaded for {{attendanceCount}} students.
             {{value.sessions.length}} sessions were found.
@@ -18,47 +22,33 @@
         </v-alert>
       </v-card-text>
     </v-card>
-    <template v-if="value">
-      <br />
-      <v-btn block color="error" @click="clear">Clear Attendance Data</v-btn>
-    </template>
-    <template v-else>
-      <h4>Provide a sin-online export with attendance data</h4>
-      <FileDropZone accept=".xls, .xlsx" :autoSubmit="true" @change="attFileChosen" />
-    </template>
-    <br />
   </div>
 </template>
 
 <script>
   import XLSX from 'xlsx';
-  import FileDropZone from './FileDropZone';
   import {processAttendanceWorkbook} from '../util/processWorkbook';
 
   export default {
     name: 'AttendancePanel',
-    components: { FileDropZone },
     props: ['value'],
     methods: {
-      // clickAttOpen() {
-      //   this.$refs.openAttFileInput.click();
-      // },      
-      attFileChosen(files) {
-        if (files[0]) {
-          const file = files[0];
+      clickAttOpen() {
+        this.$refs.openAttFileInput.click();
+      },      
+      attFileChosen(ev) {
+        if (ev.target.files[0]) {
+          const file = ev.target.files[0];
           const reader = new FileReader();
           reader.onload = (ev2) => {
             const data = new Uint8Array(ev2.target.result);
             const workbook = XLSX.read(data, {type: 'array'});
             const att = processAttendanceWorkbook(workbook);
-            this.$emit('input', att);
+            this.$emit('input',att);
           };
           reader.readAsArrayBuffer(file);
         }
       },
-      clear() {
-        this.$emit('input', null);
-      }
     },
     computed: {
       attendanceCount() {

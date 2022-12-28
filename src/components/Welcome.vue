@@ -4,14 +4,27 @@
       <v-col cols="6">
         <h2>ESE Grade Handler</h2>
         <h3>Introduction</h3>
-        <p>This is a tool that attempts to simplify a number of tasks that
-           involve grades from students. Currently, there are two tasks it can
-           help with: (1) combining student results from a number of different
-           spreadsheet files or different sheets (tabs) within a file into
-           a single table, and (2) injecting final course results into the
-           official SPD spreadsheet format required to submit official grades.
-           You can pick a tool you want to use at the top of the page, by
-           clicking "Combiner" or "Injector".
+        <p>This is a set of tools that attempt to simplify a number of tasks that
+           involve grades from students. Compared to earlier versions, the User Interface of this tool should now
+           be slightly more intuitive.</p>
+        <p> All data processing in this tool is performed <strong>within your web-browser,
+          without transmitting any data over the internet.</strong>
+          Github Pages does not provide any options to perform server-side processing of data.
+        </p>
+        <p>Currently, the following tools are provided:</p>
+        <ul>
+          <li><strong>Injector: </strong> take a spreadsheet with final course grades (exported from Ans or Canvas, or your own master spreadsheet)
+            and inject the final course results into a SPD spreadsheet as provided by SPD/the secretariat.
+            Also allows you to include attendance data from sin-online. All important steps perform useful sanity checks and make sure
+            the final course results are in compliance with school rules.</li>
+          <li><strong>Signer: </strong> take a spreadsheet with final grades in the format processed by SPD, and generates a <code>.zip</code>
+            file with signed Word documents for each grade. This is particularly useful to submit grade changes, after SPD changed the policy
+            so that now one file per student is required for grade changes.</li>
+          <li><strong>Combiner: </strong> allows you to combine multiple data sources (Ans, Canvas, custom, last years grades) into a single
+            master spreadsheet. This makes it easy to compute customized final grades and prevents you from having to use any advanced
+            Excel-lookup wizardry.</li>
+          <li><strong>Mutator: </strong> a prototype tool that is intended to generate SPD files that only contain updated grades. Currently only for advanced users.</li>
+        </ul>
         <h3>How does it work</h3>
         <p>For this tool to be able to use your spreadsheet files, they must
            have a certain structure. Sheets or Tabs that do not have this

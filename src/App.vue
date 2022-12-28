@@ -16,16 +16,16 @@
     <v-main>
       <v-tabs centered v-model="currentTab">
         <v-tab>Welcome</v-tab>
-        <v-tab>Combiner</v-tab>
         <v-tab>Injector</v-tab>
-        <v-tab>Mutator</v-tab>
         <v-tab>Signer</v-tab>
+        <v-tab>Combiner</v-tab>
+        <v-tab>Mutator</v-tab>
       </v-tabs>
       <Welcome v-if="currentTab == 0" />
-      <Combiner v-else-if="currentTab == 1" />
-      <Injector v-else-if="currentTab == 2" />
-      <Mutator v-else-if="currentTab == 3" />
-      <Signer v-else-if="currentTab == 4" />
+      <Injector v-else-if="currentTab == 1" />
+      <Signer v-else-if="currentTab == 2" />
+      <Combiner v-else-if="currentTab == 3" />
+      <Mutator v-else-if="currentTab == 4" />
     </v-main>
   </v-app>
 </template>
@@ -33,7 +33,7 @@
 <script>
 import Welcome from './components/Welcome';
 import Combiner from './components/CombinerV2';
-import Injector from './components/Injector';
+import Injector from './components/Injector2';
 import Mutator from './components/Mutator';
 import Signer from './components/Signer.vue';
 

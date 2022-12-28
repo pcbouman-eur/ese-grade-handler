@@ -42,7 +42,7 @@
               </v-tabs>
               <v-tabs-items v-model="inputTab">
                 <v-tab-item>
-                  <h3>Regular Spreadsheet ans Ans Spreadsheets</h3>
+                  <h3>Ans Export or Regular Spreadsheet</h3>
                   <p>This option can be used to import results from Ans (exported as "Excel EN")
                     or standard Excel workbooks or csv files.
                   </p>
@@ -193,15 +193,15 @@
       inputTab: 0
     }),
     methods: {
-      clickOpen() {
-        this.$refs.openFileInput.click();
-      },
-      clickOpenCanvas() {
-        this.$refs.openCanvasInput.click();
-      },      
-      clickOpenSpd() {
-        this.$refs.openSpdInput.click();
-      },            
+      // clickOpen() {
+      //   this.$refs.openFileInput.click();
+      // },
+      // clickOpenCanvas() {
+      //   this.$refs.openCanvasInput.click();
+      // },      
+      // clickOpenSpd() {
+      //   this.$refs.openSpdInput.click();
+      // },            
       fileChosen(files) {
         if (files[0]) {
           const file = files[0];
