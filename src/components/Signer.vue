@@ -130,7 +130,7 @@
   import FileDropZone from './FileDropZone.vue';
   import vueSignature from "vue-signature"
 
-  import { generateDocument, downloadZipFile } from '@/util/generateSignatureZip';
+  import { generateDocument, downloadZipFile, sanitizeFilename } from '@/util/generateSignatureZip';
 
   
   export default {
@@ -161,10 +161,9 @@
         this.stepperChange();
       },
       generateForms() {
-        //const signatureDate = new Date(this.selectedDate).toLocaleDateString('nl-nl');
+        const signatureDate = new Date().toLocaleDateString('nl-nl');
         this.busy = true;
         new Promise((resolve) => {
-          const signatureDate = new Date().toLocaleDateString('nl-nl');
           const data = [];
           const signatureBlob = this.$refs.signature.sig.canvas.toDataURL();
           for (const row of this.spdData.data) {
@@ -185,12 +184,14 @@
           }
           const documents = data.map(entry => ({
             studentid : entry.studentId,
+            studentname: entry.studentName,
             document: generateDocument(entry)
           }));
           resolve(documents);
         })
         .then( documents => {
-          downloadZipFile(documents, 'forms.zip')
+          const filename = `Grade Changes ${this.courseCode} ${this.courseName} ${signatureDate}.zip`;
+          downloadZipFile(documents, sanitizeFilename(filename))
             .finally(() => this.busy = false);
         })
       },
