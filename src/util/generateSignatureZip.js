@@ -289,7 +289,7 @@ export function generateZipFile(documents) {
     const zip = new JSZip();
     for (const {studentid, studentname, document} of documents) {
         const name = sanitizeName(studentname);
-        const path = studentid+' ' + name +'.docx';
+        const path = `Grade Change Form ${studentid} ${name}.docx`;
         const promise = new Promise((resolve, reject) => {
             documentToBlob(document)
                 .then(blob => {
