@@ -4,56 +4,82 @@ import IdentityConfig from './IdentityConfig';
 function checkKeySpec(column, spec) {
     const keySet = new Set();
     const keyCol = [];
+    let rowNum = 1;
     for (let el of column.data) {
         const value = String(el);
         const matches = Array.from(value.matchAll(spec.pattern));
         if (matches.length != 1) {
-            return {result: false, error: 'No match for value "'+value+'"'};
+            return {result: false, error: `No match for value "${value}" in row ${rowNum}`};
         }
         const key = matches[0][0];
         if (keySet.has(key)) {
-            return {result: false, error: 'Multiple occurences of "'+value+'"'};
+            return {result: false, error: `Second occurence of ${value} in row ${rowNum}`};
         }
         keySet.add(key);
         keyCol.push(key);
+        rowNum++;
     }
     return {result: true, keyCol};
 }
 
 function findKeyColumns(df, config=IdentityConfig) {
     const result = {};
+    const issues = {};
     cols:
     for (let colname of df.columns) {
+        let colIssues = {};
         for (let keySpec of config.keyTypes) {
             const spec = checkKeySpec(df[colname], keySpec);
             if (spec.result && !(spec.name in result)) {
                 result[keySpec.name] = {type: keySpec.name, column: colname, keys: spec.keyCol};
                 continue cols;
             }
+            else {
+                colIssues[keySpec.name] = spec;
+            }
         }
+        issues[colname] = colIssues;
     }
-    return result;
+    return {result, issues};
+}
+
+export function processWorkbookAttemptAll(workbook) {
+    const regularResult = processWorkbook(workbook);
+    if (regularResult.frames.length > 0) {
+        return regularResult;
+    }
+    const canvasResult = processCanvasWorkbook(workbook);
+    if (canvasResult.frames.length > 0) {
+        return canvasResult;
+    }
+    const spdResult = processSpdWorkbook(workbook);
+    if (spdResult.frames.length > 0) {
+        return spdResult;
+    }
+    return regularResult;
 }
 
 function processWorkbook(workbook) {
     const frames = [], skipped = [];
     for (let sheetName of workbook.SheetNames) {
-        let error = 'No suitable key column found';
+        let error = {msg: 'No suitable key column found'};
         try {
             const df = sheetToDataframe(workbook.Sheets[sheetName]);
-            const keys = findKeyColumns(df);
+            const { result: keys, issues } = findKeyColumns(df);
             if (Object.keys(keys).length > 0) {
                 frames.push({sheetName, df, keys});
                 error = undefined;
             }
+            else {
+                error.issues = issues;
+            }
         }
         catch (err) {
-            error = 'Sheet has invalid structure';
-            console.log(err);
+            error = {msg: 'Sheet has invalid structure', details: err};
+            // console.log(err);
         }
         if (error) {
             skipped.push({sheetName, error});
-            console.log({sheetName, error});
         }
     }
     return {frames, skipped};
@@ -64,12 +90,13 @@ const CANVAS_SIS_COL = 'SIS User ID';
 function processCanvasWorkbook(workbook) {
     const frames = [], skipped = [];
     if (workbook.SheetNames && workbook.SheetNames.length == 1) {
+
         let error = 'No suitable key column found';
         try {
             const df = sheetToDataframe(workbook.Sheets[workbook.SheetNames[0]], 1, 3);
             // Kind of weird way to get rid of NaN users (like Test Students)
             df.query({column: CANVAS_SIS_COL, is: '>', to: '', inplace: true});
-            const keys = findKeyColumns(df);
+            const { result: keys } = findKeyColumns(df);
             if (Object.keys(keys).length > 0) {
                 frames.push({sheetName: 'Canvas Grades', df, keys});
                 error = undefined;
@@ -99,10 +126,9 @@ export function processSpdWorkbook(workbook) {
         try {
             const sheet = workbook.Sheets[workbook.SheetNames[0]];
             const df = sheetToDataframe(sheet, 8, 9);
-            console.log(df);
             // Kind of weird way to get rid of NaN users (like Test Students)
             df.query({column: SPD_SIS_COL, is: '>', to: '', inplace: true});
-            const keys = findKeyColumns(df);
+            const { result: keys } = findKeyColumns(df);
             if (Object.keys(keys).length > 0) {
                 frames.push({sheetName: 'SPD Results', df, keys});
                 error = undefined;

@@ -2,7 +2,7 @@
   <div style="margin-top: 1em">
     <v-card v-if="value">
       <v-card-title>Attendance data loaded</v-card-title>
-      <v-card-text>
+      <v-card-text v-if="value && value.sessions">
         <h5>Attendance data loaded for {{attendanceCount}} students.
             {{value.sessions.length}} sessions were found.
         </h5>
@@ -15,6 +15,14 @@
         <v-alert v-if="value.duplicates.length > 0" type="warning">
           Multiple entries were found for the following students whose data
           was merged: {{value.duplicates.join(', ')}}
+        </v-alert>
+      </v-card-text>
+      <v-card-text v-if="value && !value.sessions">
+        <v-alert color="error">
+          The attendance data was not correctly loaded. <br />
+          Please make sure you follow the explained steps to import the data. <br />
+          Your filename should start with <code>att-matrix</code> <br />
+          Sin-online has multiple ways to export the data and it is expected you use the steps above!
         </v-alert>
       </v-card-text>
     </v-card>

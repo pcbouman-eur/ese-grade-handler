@@ -44,30 +44,20 @@
                 You can either use exported data from <strong>Ans</strong>, an export from
                 <strong>Canvas</strong> or a custom spreadsheet with a single header row.
               </p>
-              <template v-if="!sourceBook">
-                <h3>Choose an import format</h3>
-                <p>Click one of the import formats to import data from different sources</p>
-                <v-tabs v-model="inputTab" background-color="primary">
-                  <v-tabs-slider />
-                  <v-tab>Ans/Regular</v-tab>
-                  <v-tab>Canvas</v-tab>
-                </v-tabs>
-                <v-tabs-items v-model="inputTab">
-                  <v-tab-item>
-                    <h3>Regular Spreadsheet ans Ans Spreadsheets</h3>
-                    <p>This option can be used to import results from Ans (exported as "Excel EN")
-                      or standard Excel workbooks or csv files with tables that contain a single
-                      header row.
-                    </p>
-                    <FileDropZone accept=".xlsx,.csv" :autoSubmit="true" @change="fileChosen" />
-                  </v-tab-item>
-                  <v-tab-item>
-                    <h3>Canvas CSV Files</h3>
-                    <p>This option can be used to import a CSV file exported from the Canvas gradebook.</p>
-                    <FileDropZone accept=".csv" :autoSubmit="true" @change="canvasFileChosen" />                  
-                  </v-tab-item>
-                </v-tabs-items>
-              </template>
+              <SourceImporter v-if="!sourceBook" @change="fileChosen" />
+              <!-- <template v-if="!sourceBook">
+                <h3>Import source file</h3>
+                <p>File supports of different sources are supported:</p>
+                <ul>
+                  <li><strong>Regular Spreadsheets and Ans Spreadsheets:</strong>
+                      results from Ans (exported as "Excel EN"), standard Excel workbooks
+                      or csv files with tables that contain a single header row
+                  </li>
+                  <li><strong>Canvas CSV Files:</strong> a <code>.csv</code> file exported from the Canvas gradebook.</li>
+                  <li><strong>SPD results files:</strong> a spreadsheet file as used by SPD to process grade results</li>
+                </ul>
+                <FileDropZone accept=".xlsx,.csv" :autoSubmit="true" @change="fileChosen" />
+              </template> -->
               <v-card v-else>
                 <v-btn block color="error" @click="sourceBook = null">Clear course result data</v-btn>
                 <br />
@@ -86,18 +76,28 @@
                   outlined 
                   block />
                   <br />
-                  <v-card >
+                  <SourceBookCard :sourceBook="sourceBook" />
+                  <!-- <v-card >
                     <v-card-title>Data source: {{sourceBook.filename}}</v-card-title>
                     <v-card-text>
                       <h5>The following sheets were found</h5>
                       <v-list-item v-for="frame in sourceBook.frames" :key="frame.sheetName">
                         <v-list-item-content>{{frame.sheetName}}</v-list-item-content>
                       </v-list-item>
+                      <v-alert v-if="sourceBook.frames.length > 0" type="success">
+                        {{ sourceBook.frames.length }} sheets successfully imported.
+                        <ul>
+                          <li v-for="frame of sourceBook.frames" :key="frame.sheetName">{{ frame.sheetName }}</li>
+                        </ul>
+                      </v-alert>
                       <v-alert v-if="sourceBook.skipped.length > 0" type="warning">
-                        {{sourceBook.skipped.length}} sheets were skipped
+                        {{sourceBook.skipped.length}} sheets were skipped.
+                        <br /> Click the troubleshoot button to see details.
+                        <br />
+                        <TroubleshootDialog :workbook="sourceBook" />
                       </v-alert>              
                     </v-card-text>
-                  </v-card>
+                  </v-card> -->
                 </v-card-text>                    
               </v-card>
             </v-card-text>
@@ -243,17 +243,21 @@
 
 <script>
   import XLSX from 'xlsx';
-  import {processWorkbook,processCanvasWorkbook} from '../util/processWorkbook';
+  import {processWorkbookAttemptAll} from '../util/processWorkbook';
   import GradingPolicy from '../util/GradingPolicy';
   import IdentityConfig from '../util/IdentityConfig';
   import {injectResults} from '../util/injectResults';
   import AttendancePanel from './AttendancePanel';
+  import SourceBookCard from './SourceBookCard';
+  import SourceImporter from './SourceImporter';
   import FileDropZone from './FileDropZone';
 
   export default {
     name: 'Injector',
     components: {
       AttendancePanel,
+      SourceImporter,
+      SourceBookCard,
       FileDropZone
     },
     data: () => ({
@@ -296,20 +300,6 @@
       //     reader.readAsArrayBuffer(file);
       //   }
       // },
-      canvasFileChosen(files) {
-        if (files[0]) {
-          const file = files[0];
-          const reader = new FileReader();
-          reader.onload = (ev2) => {
-            const data = new Uint8Array(ev2.target.result);
-            const workbook = XLSX.read(data, {type: 'array'});
-            const process = processCanvasWorkbook(workbook);
-            const wb = {filename: file.name, workbook, ...process};
-            this.sourceBook = wb;
-          };
-          reader.readAsArrayBuffer(file);
-        }
-      }, 
        fileChosen(files) {
         if (files[0]) {
           const file = files[0];
@@ -317,7 +307,8 @@
           reader.onload = (ev2) => {
             const data = new Uint8Array(ev2.target.result);
             const workbook = XLSX.read(data, {type: 'array'});
-            const process = processWorkbook(workbook);
+            //const process = processWorkbook(workbook);
+            const process = processWorkbookAttemptAll(workbook);
             const wb = {filename: file.name, workbook, ...process};
             this.sourceBook = wb;
           };

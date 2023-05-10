@@ -31,17 +31,18 @@
           <v-card>
             <v-card-title>Input Spreadsheets</v-card-title>
             <v-card-text>
-              <h3>Choose an import format</h3>
-              <p>Click one of the import formats to import data from different sources</p>
+              <h3>Import Data</h3>
+              <p>Choose whether you want to import regular results or attendance data</p>
               <v-tabs v-model="inputTab" background-color="primary">
                 <v-tabs-slider />
-                <v-tab>Regular/Ans</v-tab>
-                <v-tab>Canvas</v-tab>
-                <v-tab>SPD</v-tab>
+                <v-tab>Results</v-tab>
                 <v-tab>Attendance</v-tab>
               </v-tabs>
               <v-tabs-items v-model="inputTab">
                 <v-tab-item>
+                  <SourceImporter @change="fileChosen" />
+                </v-tab-item>
+                <!-- <v-tab-item>
                   <h3>Ans Export or Regular Spreadsheet</h3>
                   <p>This option can be used to import results from Ans (exported as "Excel EN")
                     or standard Excel workbooks or csv files.
@@ -57,7 +58,7 @@
                   <h3>SPD Excel Files</h3>
                   <p>This option can be used to import results from an SPD file with existing course results.</p>
                   <FileDropZone accept=".xlsx" :autoSubmit="true" @change="spdFileChosen" />                  
-                </v-tab-item>
+                </v-tab-item> -->
                 <v-tab-item>
                   <h3>Attendance Data</h3>
                   <p>This option can be used to import attendance data exported from sin-online</p>
@@ -65,7 +66,8 @@
                 </v-tab-item>                                                
               </v-tabs-items>
               <div v-for="book in workbooks" :key="book.filename">
-                  <h3>{{book.filename}}</h3>
+                  <SourceBookCard :sourceBook="book" :askInclude="true" />
+                  <!-- <h3>{{book.filename}}</h3>
                   <v-card v-for="frame in book.frames" :key="frame.sheetName">
                     <v-card-title>{{frame.sheetName}}</v-card-title>
                     <v-card-actions>
@@ -74,8 +76,8 @@
                   </v-card>
                   <v-alert v-if="book.skipped.length > 0" type="warning">
                     {{book.skipped.length}} sheets were skipped
-                  </v-alert>
-                </div>
+                  </v-alert> -->
+              </div>
             </v-card-text>
             <v-card-actions>
 
@@ -166,10 +168,11 @@
 
 <script>
   import XLSX from 'xlsx';
-  import {processWorkbook, processCanvasWorkbook, processSpdWorkbook} from '../util/processWorkbook';
+  import {processWorkbookAttemptAll, processCanvasWorkbook, processSpdWorkbook} from '../util/processWorkbook';
   import exportColumns from '../util/exportColumns';
   import AttendancePanel from './AttendancePanel';
-  import FileDropZone from './FileDropZone.vue';
+  import SourceImporter from './SourceImporter';
+  import SourceBookCard from './SourceBookCard';
   import SelectColumn from './SelectColumn';
   import ConditionPanel from './ConditionPanel';
   import GradingPolicy from '../util/GradingPolicy';
@@ -179,7 +182,7 @@
   export default {
     name: 'Combiner',
     components: {
-      AttendancePanel, SelectColumn, ConditionPanel, FileDropZone
+      AttendancePanel, SelectColumn, ConditionPanel, SourceImporter, SourceBookCard
     },
     data: () => ({
       workbooks: [],
@@ -209,7 +212,7 @@
           reader.onload = (ev2) => {
             const data = new Uint8Array(ev2.target.result);
             const workbook = XLSX.read(data, {type: 'array'});
-            const process = processWorkbook(workbook);
+            const process = processWorkbookAttemptAll(workbook);
             const wb = {filename: file.name, workbook, ...process};
             wb.frames.forEach(frame => frame.includeStudents = true);
             this.workbooks.push(wb);
