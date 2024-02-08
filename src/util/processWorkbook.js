@@ -120,7 +120,7 @@ const SPD_SIS_COL = 'Studentnummer';
 
 export function processSpdWorkbook(workbook) {
     const frames = [], skipped = [];
-    let courseCode, courseName;
+    let courseCode, courseName, examination;
     if (workbook.SheetNames && workbook.SheetNames.length == 1) {
         let error = 'No suitable key column found';
         try {
@@ -136,6 +136,7 @@ export function processSpdWorkbook(workbook) {
 
             courseCode = sheet['B1']?.v;
             courseName = sheet['B2']?.v;
+            examination = sheet['C4']?.v;
         }
         catch (err) {
             console.log(err);
@@ -145,7 +146,7 @@ export function processSpdWorkbook(workbook) {
             skipped.push({sheetName: 'SPD Results', error});
         }
     }
-    return {frames, skipped, courseCode, courseName};
+    return {frames, skipped, courseCode, courseName, examination};
 }
 
 const USER_PATTERN = /(user|student|erna)/i;

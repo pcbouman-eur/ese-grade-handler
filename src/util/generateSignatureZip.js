@@ -255,6 +255,261 @@ export function generateDocument(data) {
     });
 }
 
+export function generateMutationDocument(data) {
+    const fill = '#bbbbbb'
+    return new Document({
+        sections: [
+            {
+                headers: {
+                    default: new Header({
+                        children: [new Paragraph({children: [
+                                new ImageRun({
+                                    data: EURVerticalLogo,
+                                    transformation: {
+                                        width: 189,
+                                        height: 141,
+                                    }
+                                })
+                            ]}),
+                        ],
+                    })
+                },
+                footers: {
+                    default: new Header({
+                        children: [
+                            new Table({
+                                rows: [
+                                    new TableRow({
+                                        children: [
+                                            new TableCell({
+                                                children: [new Paragraph({
+                                                    children: [
+                                                        new ImageRun({
+                                                            data: EURHorizontalLogo,
+                                                            transformation: {
+                                                                width: 369,
+                                                                height: 159,
+                                                            }
+                                                        })
+                                                    ],
+                                                    alignment: AlignmentType.LEFT
+                                                    }),
+                                                ],
+                                                verticalAlign: VerticalAlign.CENTER,
+                                                width: {
+                                                    size: 700,
+                                                    type: WidthType.DXA
+                                                },
+                                                borders: noBorders
+                                            }),
+                                            new TableCell({
+                                                children: [new Paragraph({
+                                                    children: [
+                                                        new ImageRun({
+                                                            data: ErasmusLogo,
+                                                            transformation: {
+                                                                width: 225,
+                                                                height: 135,
+                                                            }
+                                                        })
+                                                    ],
+                                                    alignment: AlignmentType.RIGHT
+                                                    }),
+                                                ],
+                                                verticalAlign: VerticalAlign.CENTER,
+                                                width: {
+                                                    size: 150,
+                                                    type: WidthType.DXA
+                                                },
+                                                borders: noBorders                                         
+                                            }),
+                                        ],
+                                    }),
+                                ],
+                            }),
+                        ],
+                    })
+                },
+                children: [
+                    new Paragraph({ children: [
+                        new TextRun({ text: "Betreft/Regarding: Correctie cijfer(s)/Correction grade(s)", font, size })
+                    ]}),
+                    new Paragraph({ children: [
+                        new TextRun({ text: "Naam vak/Name course: ", bold, font, size }),
+                        new TextRun({ text: `${data.courseName}`, font, size })
+                    ]}),
+                    new Paragraph({ children: [
+                        new TextRun({ text: "Vak code/Course code: ", bold, font, size }),
+                        new TextRun({ text: `${data.courseCode}`, font, size })
+                    ]}),                    
+                    new Paragraph({ children: [
+                        new TextRun({ text: "Toets/Exam: ", bold, font, size }),
+                        new TextRun({ text: `${data.exam}`, font, size })
+                    ]}),                    
+                    new Paragraph({ children: [
+                        new TextRun({ text: "Datum cijfer/Date grade: ", bold, font, size }),
+                        new TextRun({ text: `${data.gradeDate}`, font, size })
+                    ]}),                    
+                    new Paragraph({ text: "" }),
+                    new Table({
+                        rows: [
+                            new TableRow({
+                                children: [
+                                    new TableCell({
+                                        children: [new Paragraph({ children: [
+                                                new TextRun({ text: 'Studentnummer / Studentnumber', bold, font, size })
+                                            ]
+                                        })],
+                                        verticalAlign: VerticalAlign.CENTER,
+                                        shading: { fill },
+                                        width: {
+                                            size: 30,
+                                            type: WidthType.PERCENTAGE
+                                        },
+                                    }),
+                                    new TableCell({
+                                        children: [new Paragraph({ children: [
+                                                new TextRun({ text: 'Naam student / name student', bold, font, size })
+                                            ]
+                                        })],
+                                        verticalAlign: VerticalAlign.CENTER,
+                                        shading: { fill },
+                                        width: {
+                                            size: 50,
+                                            type: WidthType.PERCENTAGE
+                                        },                                        
+                                    }),
+                                    new TableCell({
+                                        children: [new Paragraph({ children: [
+                                                new TextRun({text: 'Oud Cijfer / Old Grade', bold, font, size})
+                                            ]
+                                        })],
+                                        verticalAlign: VerticalAlign.CENTER,
+                                        shading: { fill },
+                                        width: {
+                                            size: 20,
+                                            type: WidthType.PERCENTAGE
+                                        },                                        
+
+                                    }),
+                                    new TableCell({
+                                        children: [new Paragraph({ children: [
+                                                new TextRun({text: 'Nieuw Cijfer / New Grade', bold, font, size})
+                                            ]
+                                        })],
+                                        verticalAlign: VerticalAlign.CENTER,
+                                        shading: { fill },
+                                        width: {
+                                            size: 20,
+                                            type: WidthType.PERCENTAGE
+                                        },                                        
+
+                                    }),
+                                ],
+                                tableHeader: true
+                            }),
+                            new TableRow({
+                                children: [
+                                    new TableCell({
+                                        children: [new Paragraph({ children: [
+                                                new TextRun({ text: data.studentId, font, size })
+                                            ]
+                                        })],
+                                        verticalAlign: VerticalAlign.CENTER,
+                                    }),
+                                    new TableCell({
+                                        children: [new Paragraph({ children: [
+                                                new TextRun({ text: data.studentName, font, size })
+                                            ]
+                                        })],
+                                        verticalAlign: VerticalAlign.CENTER,
+                                    }),
+                                    new TableCell({
+                                        children: [new Paragraph({ children: [
+                                                new TextRun({ text: data.oldResult, font, size })
+                                            ]
+                                        })],
+                                        verticalAlign: VerticalAlign.CENTER,
+                                    }),
+                                    new TableCell({
+                                        children: [new Paragraph({ children: [
+                                                new TextRun({ text: data.studentResult, font, size })
+                                            ]
+                                        })],
+                                        verticalAlign: VerticalAlign.CENTER,
+                                    }),
+                                ],
+                            }),
+                        ],
+                    }),
+                    new Paragraph({ text: "" }),
+                    new Table({
+                        rows: [
+                            new TableRow({
+                                children: [
+                                    new TableCell({
+                                        children: [new Paragraph({ children: [
+                                                new TextRun({text: 'Datum ondertekening /\n Date signature', bold, font, size})
+                                            ]
+                                        })],
+                                        verticalAlign: VerticalAlign.CENTER,
+                                        shading: { fill },
+                                    }),
+                                    new TableCell({
+                                        children: [new Paragraph({ children: [
+                                                new TextRun({text: 'Naam & Handtekening docent /\n Name & Signature professor', bold, font, size})
+                                            ]
+                                        })],
+                                        verticalAlign: VerticalAlign.CENTER,
+                                        shading: { fill },
+                                    }),
+                                ],
+                                tableHeader: true
+                            }),
+                            new TableRow({
+                                children: [
+                                    new TableCell({
+                                        children: [new Paragraph({ children: [
+                                                new TextRun({ text: data.signatureDate, font, size })
+                                            ]
+                                        })],
+                                        verticalAlign: VerticalAlign.CENTER,
+                                    }),
+                                    new TableCell({
+                                        children: [new Paragraph({ children: [
+                                                            new TextRun({ text: data.teacherName, font, size })
+                                                        ]   
+                                                    }),
+                                                    new Paragraph({children: [
+                                                        new ImageRun({
+                                                            data: data.signatureBlob,
+                                                            transformation: {
+                                                                width: data.signatureWidth,
+                                                                height: data.signatureHeight,
+                                                            }
+                                                        })
+                                                    ]}),
+                                                    new Paragraph({ text: "" })
+                                        ],
+                                        verticalAlign: VerticalAlign.CENTER,
+                                    }),
+                                ],
+                            }),
+                        ],
+                    }),
+                    new Paragraph({ children: [
+                        new TextRun({text: 'Let op/Please note: Dit formulier is niet bedoeld voor het doorgeven van cijfers voortkomend uit herkansingen'
+                        +'/This form is not intended for passing on marks resulting from resits.', bold, font, size})
+                    ]
+                })
+                ],
+            },
+        ],
+    });
+}
+
+
+
 export function documentToBlob(document) {
     return Packer.toBlob(document);
 }

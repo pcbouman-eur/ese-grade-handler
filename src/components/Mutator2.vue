@@ -1,69 +1,43 @@
 <template>
   <div style="display:flex; justify-content: center;">
-    <v-stepper v-model="step" non-linear style="width: 100%; max-width: 60em;">
+    <v-stepper v-model="step" non-linear style="width: 100%; max-width: 60em;" @change="stepperChange()">
       <v-stepper-header>
-        <v-stepper-step editable step="1" :complete="step > 1" >Introduction</v-stepper-step>
+        <v-stepper-step editable step="1" :complete="step > 1" >Updated Results</v-stepper-step>
         <v-divider />      
-        <v-stepper-step editable step="2" :complete="step > 2" >Final Course Results</v-stepper-step>
+        <v-stepper-step editable step="2" :complete="step > 2" >Previous Results</v-stepper-step>
         <v-divider />
         <v-stepper-step editable step="3" :complete="step > 3" >Attendance</v-stepper-step>
         <v-divider />
-        <v-stepper-step editable step="4" :complete="step > 4" >SPD File</v-stepper-step>
+        <v-stepper-step editable step="4" :complete="step > 4" >Signature</v-stepper-step>
         <v-divider />
         <v-stepper-step editable step="5" >Generate Output</v-stepper-step>
       </v-stepper-header>
       <v-stepper-items>
         <v-stepper-content step="1">
           <v-card>
-            <v-card-title>Finalize SPD Results File</v-card-title>
+            <v-card-title>Mutate Results</v-card-title>
             <v-card-text>
-              <p>Read final course results from an <strong>Ans</strong>,
-              <strong>Canvas</strong> or <strong>another Spreadsheet dataset</strong>
-              and insert this data into a official spreadsheet as provided by SPD or your
-              secretariat. You can then send this file to SPD to be imported
-              into Osiris.</p>
-              <p><strong>Note: </strong> this tool also has the option
-                to include attendance data exported from sin-online,
-                and automatically generate "Invalid Result" grades
-                in cases students do not meet the school's attendance
-                requirement.
+              <p>After course results have been established, this workflow can compare
+                 the submitted grades to a spreadsheet with updated course results.
+                 The output is a zip-file with signed documents that can be submitted
+                 to SPD with grade changes. 
               </p>
-            </v-card-text>
-            <v-card-actions>
-              <v-spacer />
-              <v-btn color="primary" @click="step++">Next</v-btn>                        
-            </v-card-actions>
-          </v-card>
-        </v-stepper-content>
-        <v-stepper-content step="2">
-          <v-card>
-            <v-card-title>Final Course Results</v-card-title>
-            <v-card-text>
+              <hr/>
+              <br />
+              <h2>Updated Course Results</h2>
               <p>
-                Here you can import and select the source data for the final course results.
+                Here you can import and select the source data for the updated final course results.
                 You can either use exported data from <strong>Ans</strong>, an export from
                 <strong>Canvas</strong> or a custom spreadsheet with a single header row.
               </p>
               <SourceImporter v-if="!sourceBook" @change="fileChosen" />
-              <!-- <template v-if="!sourceBook">
-                <h3>Import source file</h3>
-                <p>File supports of different sources are supported:</p>
-                <ul>
-                  <li><strong>Regular Spreadsheets and Ans Spreadsheets:</strong>
-                      results from Ans (exported as "Excel EN"), standard Excel workbooks
-                      or csv files with tables that contain a single header row
-                  </li>
-                  <li><strong>Canvas CSV Files:</strong> a <code>.csv</code> file exported from the Canvas gradebook.</li>
-                  <li><strong>SPD results files:</strong> a spreadsheet file as used by SPD to process grade results</li>
-                </ul>
-                <FileDropZone accept=".xlsx,.csv" :autoSubmit="true" @change="fileChosen" />
-              </template> -->
               <v-card v-else>
                 <v-btn block color="error" @click="sourceBook = null">Clear course result data</v-btn>
                 <br />
                 <v-card-title>Data source loaded. Choose final result</v-card-title>
                 <v-card-text>
-                <p v-if="availableColumns.length > 0">After you have imported a data source, choose the column from that data source that contains the final course result</p>
+                <v-alert color="warning" v-if="!sourceColumn">Please pick a column with final results before you continue!</v-alert>
+                <p v-if="availableColumns.length > 0">After you have imported a data source, choose the column from that data source that contains the updated final course result</p>
                 <p v-else>While a dataset was loaded, no suitable columns to use for the final course results were found. Make sure your dataset is valid and correct.</p>
                 <v-select
                   class="margin-top"
@@ -77,34 +51,34 @@
                   block />
                   <br />
                   <SourceBookCard :sourceBook="sourceBook" />
-                  <!-- <v-card >
-                    <v-card-title>Data source: {{sourceBook.filename}}</v-card-title>
-                    <v-card-text>
-                      <h5>The following sheets were found</h5>
-                      <v-list-item v-for="frame in sourceBook.frames" :key="frame.sheetName">
-                        <v-list-item-content>{{frame.sheetName}}</v-list-item-content>
-                      </v-list-item>
-                      <v-alert v-if="sourceBook.frames.length > 0" type="success">
-                        {{ sourceBook.frames.length }} sheets successfully imported.
-                        <ul>
-                          <li v-for="frame of sourceBook.frames" :key="frame.sheetName">{{ frame.sheetName }}</li>
-                        </ul>
-                      </v-alert>
-                      <v-alert v-if="sourceBook.skipped.length > 0" type="warning">
-                        {{sourceBook.skipped.length}} sheets were skipped.
-                        <br /> Click the troubleshoot button to see details.
-                        <br />
-                        <TroubleshootDialog :workbook="sourceBook" />
-                      </v-alert>              
-                    </v-card-text>
-                  </v-card> -->
                 </v-card-text>                    
-              </v-card>
+              </v-card>                  
+            </v-card-text>
+            <v-card-actions>
+              <v-spacer />
+              <v-btn color="primary" @click="step++">Next</v-btn>                        
+            </v-card-actions>
+          </v-card>
+        </v-stepper-content>
+        <v-stepper-content step="2">
+          <v-card>
+            <v-card-title>Previous Course Results</v-card-title>
+            <v-card-text>
+              <p>Here you have to provide the SPD spreadsheet with previous course results that was provided by SPD or the secretariat.</p>
+              <template v-if="!targetFilename">
+                <h4>Result Spreadsheet (as previously submitted to SPD)</h4>
+                <!-- <v-btn color="primary" block @click="clickOpenTarget">Set Target Spreadsheet</v-btn> -->
+                <FileDropZone accept=".xlsx" :autoSubmit="true" @change="fileTargetChosen"/>
+              </template>
+              <template v-else>
+                <h5>Target Spreadsheet: {{targetFilename}}</h5>
+                <v-btn block color="error" @click="clearTarget">Clear SPD Target Spreadsheet</v-btn>
+              </template>
             </v-card-text>
             <v-card-actions>
               <v-btn color="primary" @click="step--">Previous</v-btn>
               <v-spacer />
-              <v-btn color="primary" @click="step++">Next</v-btn>                        
+              <v-btn color="primary" @click="step++">Next</v-btn>
             </v-card-actions>
           </v-card>
         </v-stepper-content>
@@ -132,20 +106,26 @@
             </v-card-actions>
           </v-card>
         </v-stepper-content>
+        <!-- start -->
         <v-stepper-content step="4">
           <v-card>
-            <v-card-title>SPD File</v-card-title>
+            <v-card-title>Signature</v-card-title>
             <v-card-text>
-              <p>Here you have to provide the SPD spreadsheet with blank course results that was provided by SPD or the secretariat.</p>
-              <template v-if="!targetFilename">
-                <h4>Target Spreadsheet (as provided by SPD)</h4>
-                <!-- <v-btn color="primary" block @click="clickOpenTarget">Set Target Spreadsheet</v-btn> -->
-                <FileDropZone accept=".xlsx" :autoSubmit="true" @change="fileTargetChosen"/>
-              </template>
-              <template v-else>
-                <h5>Target Spreadsheet: {{targetFilename}}</h5>
-                <v-btn block color="error" @click="clearTarget">Clear SPD Target Spreadsheet</v-btn>
-              </template>
+              <p>The forms needs to be signed with the name of the teacher and the signature of the teacher.</p>
+              <v-container>
+                <v-row>
+                  <v-col cols="12">
+                    <v-text-field v-model="teacherName"  label="Name of the Teacher" hint="Please fill in your name"/>
+                  </v-col>
+                </v-row>
+              </v-container>
+              <hr />
+              <p>Please draw your signature below.  This signature will be copied to all generated forms.</p>
+              <vueSignature class="signature-box" ref="signature" :w="signatureWidth+'px'" :h="signatureHeight+'px'" />
+              <div>
+                <v-btn class="draw-button" fab small color="primary" @click="$refs.signature.undo()"><v-icon dark>mdi-undo</v-icon></v-btn>
+                <v-btn class="draw-button" fab small color="error" @click="$refs.signature.clear()"><v-icon dark>mdi-delete</v-icon></v-btn>
+              </div>
             </v-card-text>
             <v-card-actions>
               <v-btn color="primary" @click="step--">Previous</v-btn>
@@ -153,11 +133,12 @@
               <v-btn color="primary" @click="step++">Next</v-btn>
             </v-card-actions>
           </v-card>
-        </v-stepper-content>        
+        </v-stepper-content>
+        <!-- end -->        
         <v-stepper-content step="5">
           <v-card>
             <v-card-title>
-              Output Spreadsheet
+              Generate Output
             </v-card-title>
             <v-card-text>
               <template v-if="hasIssues">
@@ -169,13 +150,12 @@
                 </v-alert>
               </template>
               <template v-else>
-                <p>Download the finalized SPD spreadsheet below.</p>
-                <p>After you download this file, <strong>open it in Excel and then save it using Excel, before sending it to SPD</strong>.
-                  This way you make sure the file is correct.</p>
-                <p>Saving the file with Excel is needed due to a technical limitation of the SheetJS library used to generate the
-                  output file. This action ensures all values are saved in a way SPD can properly process the file..
-                </p>
-                <v-btn block color="primary" @click="downloadResult" :disabled="!injectionResults">Export Results</v-btn>
+                <p>Download the finalized files below.</p>
+                <v-btn block color="primary" @click="downloadForms" :disabled="!injectionResults">Download Grade Change Forms</v-btn>
+                <br />
+                <v-btn block color="primary" @click="downloadResult" :disabled="!injectionResults">Export Full Result Spreadsheet</v-btn>
+                <br />
+                <v-btn block color="primary" @click="downloadUpdates" :disabled="!injectionResults">Export Update Grade Change Spreadsheet</v-btn>
               </template>
               <template v-if="injectionResults && injectionResults.missing && injectionResults.missing.length > 0">
                 <br />
@@ -245,22 +225,25 @@
 
 <script>
   import XLSX from 'xlsx';
-  import {processWorkbookAttemptAll} from '../util/processWorkbook';
+  import { processWorkbookAttemptAll, processSpdWorkbook } from '../util/processWorkbook';
   import GradingPolicy from '../util/GradingPolicy';
   import IdentityConfig from '../util/IdentityConfig';
-  import {injectResults} from '../util/injectResults';
-  import AttendancePanel from './AttendancePanel';
+  import { injectResults, readResultEntries, processResult, mutateResults } from '../util/injectResults';
   import SourceBookCard from './SourceBookCard';
   import SourceImporter from './SourceImporter';
   import FileDropZone from './FileDropZone';
+  import AttendancePanel from './AttendancePanel'
+  import vueSignature from "vue-signature"
+  import { generateMutationDocument, downloadZipFile, sanitizeFilename } from '@/util/generateSignatureZip';
 
   export default {
     name: 'Injector',
     components: {
-      AttendancePanel,
       SourceImporter,
       SourceBookCard,
-      FileDropZone
+      FileDropZone,
+      AttendancePanel,
+      vueSignature
     },
     data: () => ({
       attendance: null,
@@ -268,10 +251,19 @@
       sourceBook: null,
       sourceColumn: null,
       rawTarget: null,
+      targetData: null,
       targetFilename: null,
       dropEmptyStudents: false,
       step: 1,
-      inputTab: 0
+      inputTab: 0,
+      signatureWidth: 800,
+      signatureHeight: 200,
+      signatureCheck: false,
+      teacherName: '',
+      courseName: '',
+      courseCode: '',
+      examination: '',
+      busy: false
     }),
     methods: {
       clickOpen() {
@@ -317,6 +309,19 @@
           reader.readAsArrayBuffer(file);
         }
       },
+      // fileTargetChosen(files) {
+      //   if (files[0]) {
+      //     this.rawTarget = null;
+      //     this.target = null;
+      //     const file = files[0];
+      //     const reader = new FileReader();
+      //     reader.onload = (ev2) => {
+      //       this.rawTarget = new Uint8Array(ev2.target.result);
+      //       this.targetFilename = file.name;
+      //     };
+      //     reader.readAsArrayBuffer(file);
+      //   }
+      // },      
       fileTargetChosen(files) {
         if (files[0]) {
           this.rawTarget = null;
@@ -326,6 +331,18 @@
           reader.onload = (ev2) => {
             this.rawTarget = new Uint8Array(ev2.target.result);
             this.targetFilename = file.name;
+            const workbook = XLSX.read(this.rawTarget, {type: 'array'});
+            const res = readResultEntries(workbook);
+            const data = {name: file.name,
+                          lastModified: file.lastModified,
+                          date: new Date(file.lastModified),
+                          data: res};
+            this.targetData = data;
+            const process = processSpdWorkbook(workbook);
+            this.spdData = process.frames[0].df;
+            this.courseName = process.courseName;
+            this.courseCode = process.courseCode;
+            this.examination = process.examination;
           };
           reader.readAsArrayBuffer(file);
         }
@@ -361,7 +378,8 @@
       },
       downloadResult() {
         if (this.injectionResults && this.injectionResults.wb) {
-          const fname = this.targetFilename.replace('.xlsx','-injected.xlsx');
+          const date = new Date().toLocaleDateString('nl-nl');
+          const fname = sanitizeFilename(this.targetFilename.replace('.xlsx',`-revision-${date}.xlsx`));
           XLSX.writeFile(this.injectionResults.wb, fname);
         }
       },
@@ -376,23 +394,101 @@
           XLSX.utils.book_append_sheet(wb, ws, 'Missing');
           XLSX.writeFile(wb, fname);
         }
+      },
+      downloadUpdates() {
+        if (this.mutationResults && this.mutationResults.wb) {
+          const date = new Date().toLocaleDateString('nl-nl');
+          const fname = sanitizeFilename(this.targetFilename.replace('.xlsx',`-updates-${date}.xlsx`));
+          XLSX.writeFile(this.mutationResults.wb, fname);
+        }
+      },
+      stepperChange() {
+        if (this.$refs?.signature) {
+          this.signatureCheck = !this.$refs.signature.isEmpty();
+        }
+        else {
+          this.signatureCheck = false;
+        }
+      },
+      downloadForms() {
+        // TODO: use date information rather than order?
+        // let result = {};
+        // if (this.targetData) {
+        //   result = {...result, ...this.targetData.data.entries};
+        //   console.log(this.targetData);
+        //   for (const [std, res] of Object.entries(this.targetData.data.entries)) {
+        //     console.log(std, res);
+        //   }
+        // }
+        // console.log(result);
+        console.log(this.processedResults.data);
+        const signatureDate = new Date().toLocaleDateString('nl-nl');
+        new Promise((resolve) => {
+          const data = [];
+          const signatureBlob = this.$refs.signature.sig.canvas.toDataURL();
+          for (const row of this.spdData.data) {
+            const oldResult = row[3];
+            const newResult = this.processedResults.data[row[0]] || 'NO';
+            if (oldResult == newResult) {
+              continue;
+            }
+            const stdElement = { 
+              courseName: this.courseName,
+              courseCode: this.courseCode,
+              exam: this.examination,
+              gradeDate: row[2],
+              signatureDate,
+              studentId: row[0],
+              studentName: row[1],
+              oldResult: oldResult,
+              studentResult: newResult,
+              teacherName: this.teacherName,
+              signatureBlob,
+              signatureWidth: 0.59*this.signatureWidth,
+              signatureHeight: 0.59*this.signatureHeight,
+            };
+            data.push(stdElement);
+          }
+          const documents = data.map(entry => ({
+            studentid : entry.studentId,
+            studentname: entry.studentName,
+            document: generateMutationDocument(entry)
+          }));
+          resolve(documents);
+        })
+        .then( documents => {
+          const filename = `Grade Changes ${this.courseCode} ${this.courseName} ${signatureDate}.zip`;
+          downloadZipFile(documents, sanitizeFilename(filename))
+            .finally(() => this.busy = false);
+        });
+      },
+    },
+    watch: {
+      step() {
+        this.stepperChange();
       }
     },
     computed: {
       issues() {
         const result = [];
         if (!this.sourceBook) {
-          result.push('You must provide a data source with final course results');
+          result.push('You must provide a data source with the updated course results');
         }
         else if (!this.selectedColumn) {
           result.push('You must select the column from the data source that contains the final course results');
         }
         if (!this.rawTarget) {
-          result.push('You must provide the SPD spreadsheet with blank course results into which the final course results must be injected');
+          result.push('You must provide the SPD spreadsheet with the previous course results');
         }
         if (this.injectionResults && this.injectionResults.errors && this.injectionResults.errors.length > 0) {
           result.push('You must make sure that the SPD target spreadsheet has the proper format. Provide the file sent out by SPD/the secretariat as is without any modifications.');
         }
+        if (this.teacherName.trim() == '') {
+          result.push('You need to provide a name of the teacher');
+        }
+        if (!this.signatureCheck) {
+          result.push('No signature to sign the forms with was provided yet');
+        }        
         return result;
       },
       hasIssues() {
@@ -404,6 +500,20 @@
               const wb = XLSX.read(this.rawTarget, {type: 'array', cellStyles:true});
               const passAtt = this.attendance && this.useAttendance ? this.attendance : null;
               const result = injectResults(this.selectedColumn, wb, GradingPolicy, IdentityConfig, passAtt);
+              return result;
+            }
+            catch (err) {
+              console.log(err);
+              return {errors: ['Error while processing target spreadsheet: ' + err.message]};
+            }
+        }
+        return null;
+      },
+      processedResults() {
+        if (this.rawTarget && this.selectedColumn) {
+            try {
+              const passAtt = this.attendance && this.useAttendance ? this.attendance : null;
+              const result = processResult(this.selectedColumn, GradingPolicy, IdentityConfig, passAtt);
               return result;
             }
             catch (err) {
@@ -450,7 +560,67 @@
       },
       cantExport() {
         return this.injectionResults == null || !this.injectResults.errors;
-      }
+      },
+      oldResults() {
+        // TODO: use date information rather than order?
+        let result = {};
+        if (this.targetData) {
+          result = {...result, ...this.targetData.data.entries};
+          // console.log(this.targetData);
+          // for (const mut of this.mutations) {
+          //   console.log(mut);
+          //   result = {...result, ...mut.data.entries};
+          // }
+        }
+        return result;
+      },
+      updatedResults() {
+        if (this.selectedColumn) {
+          const passAtt = this.attendance && this.useAttendance ? this.attendance : null;
+          console.log("Processing results");
+          const rawNewResults = processResult(this.selectedColumn, GradingPolicy, IdentityConfig, passAtt);
+          console.log("Results processed");
+          const newResults = rawNewResults.data;
+          const allStudents = new Set();
+          Object.keys(newResults).forEach(i => allStudents.add(i));
+          Object.keys(this.oldResults).forEach(i => allStudents.add(i));
+          const result = {};
+          for (const student of allStudents) {
+            const newValue = newResults[student];
+            const newMissing = newValue === undefined || newValue == GradingPolicy.missingValue;
+            const oldEntry = this.oldResults[student];
+            const oldValue = oldEntry ? oldEntry.result : undefined;
+            const oldMissing = oldValue === undefined || oldValue == GradingPolicy.missingValue;
+            if (oldValue != newValue) {
+              if (newMissing && oldMissing) {
+                continue;
+              }
+              else if (newMissing) {
+                result[student] = GradingPolicy.missingValue;
+              }
+              else {
+                result[student] = newValue;
+              }
+            }
+          }
+          return result;
+        }
+        return null;
+      },
+      mutationResults() {
+        if (this.rawTarget && this.updatedResults) {
+            try {
+              const wb = XLSX.read(this.rawTarget, {type: 'array', cellStyles:true});
+              const result = mutateResults(this.updatedResults, wb);
+              return result;
+            }
+            catch (err) {
+              console.log(err);
+              return {errors: ['Error while processing target spreadsheet: ' + err.message]};
+            }
+        }
+        return null;
+      },      
     },
   }
 </script>
