@@ -64,7 +64,7 @@
           <v-card>
             <v-card-title>Previous Course Results</v-card-title>
             <v-card-text>
-              <p>Here you have to provide the SPD spreadsheet with previous course results that was provided by SPD or the secretariat.</p>
+              <p>Here you have to provide the SPD spreadsheet with previous course results that was submitted to SPD by you or the secretariat.</p>
               <template v-if="!targetFilename">
                 <h4>Result Spreadsheet (as previously submitted to SPD)</h4>
                 <!-- <v-btn color="primary" block @click="clickOpenTarget">Set Target Spreadsheet</v-btn> -->
