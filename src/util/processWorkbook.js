@@ -22,11 +22,14 @@ function checkKeySpec(column, spec) {
     return {result: true, keyCol};
 }
 
-function findKeyColumns(df, config=IdentityConfig) {
+function findKeyColumns(df,  onlyColumns=[], config=IdentityConfig) {
     const result = {};
     const issues = {};
     cols:
     for (let colname of df.columns) {
+        if (onlyColumns.length > 0 && !onlyColumns.includes(colname)) {
+            continue;
+        }
         let colIssues = {};
         for (let keySpec of config.keyTypes) {
             const spec = checkKeySpec(df[colname], keySpec);
@@ -96,7 +99,7 @@ function processCanvasWorkbook(workbook) {
             const df = sheetToDataframe(workbook.Sheets[workbook.SheetNames[0]], 1, 3);
             // Kind of weird way to get rid of NaN users (like Test Students)
             df.query({column: CANVAS_SIS_COL, is: '>', to: '', inplace: true});
-            const { result: keys } = findKeyColumns(df);
+            const { result: keys } = findKeyColumns(df, [CANVAS_SIS_COL]);
             if (Object.keys(keys).length > 0) {
                 frames.push({sheetName: 'Canvas Grades', df, keys});
                 error = undefined;
