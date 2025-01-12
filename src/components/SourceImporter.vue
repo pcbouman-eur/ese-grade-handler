@@ -8,7 +8,7 @@
             or csv files with tables that contain a single header row
         </li>
         <li><strong>Canvas CSV Files:</strong> a <code>.csv</code> file exported from the Canvas gradebook.</li>
-        <li><strong>SPD results files:</strong> a spreadsheet file as used by SPD to process grade results</li>
+        <li><strong>Osiris results files:</strong> a spreadsheet file as imported into Osiris to process grade results</li>
         </ul>
         <FileDropZone accept=".xlsx,.csv" :autoSubmit="true" @change="fileChosen" />
     </div>

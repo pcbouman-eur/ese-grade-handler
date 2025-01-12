@@ -141,6 +141,48 @@ function injectResults(column, wb, gradingPolicy, identityConfig, attendance) {
     return {wb, errors, warnings, missing};
 }
 
+function injectAttendance(wb, attendanceStatus, missingValue='NO') {
+    const errors = [], warnings = [], missing = [];
+    const sheet = wb.Sheets[SHEET_NAME];
+    if (sheet && checkSheetStructure(sheet, errors)) {
+        // Proceed
+        const processed = new Set();
+        // const erna_dataset = exportColumns.columnToDataset(column, OUTPUT_KEY);
+        // const std_dataset = {};
+        // for (let [key, val] of Object.entries(erna_dataset)) {
+        //     const conv_key = identityConfig.convert(OUTPUT_KEY, SHEET_KEY, key);
+        //     std_dataset[conv_key] = val;
+        // }
+        const range = XLSX.utils.decode_range(sheet['!ref']);
+        for (let row = FIRST_ROW; row <= range.e.r; row++) {
+            const id_ref = XLSX.utils.encode_cell({ c: ID_COL_INDEX, r: row });
+            const res_ref = XLSX.utils.encode_cell({ c: RES_COL_INDEX, r: row });
+            const idcell = sheet[id_ref];
+            let rescell = sheet[res_ref];
+            if (!rescell) {
+                sheet[res_ref] = {t: 's', v: null};
+                rescell = sheet[res_ref];
+            }
+            const id = idcell.v;
+            if (id) {
+                processed.add(id);
+                const status = attendanceStatus[id];
+                if (status) {
+                    rescell.v = attendanceStatus[id].status;
+                }
+                else {
+                    rescell.v = missingValue;
+                    missing.push(`No attendance data for student ${id}, injected ${missingValue}`);
+                }
+            }
+        }
+    }
+    else {
+        errors.push('Incorrect structure for target file. Sheet '+SHEET_NAME+' was expected but not found');
+    }
+    return {wb, errors, warnings, missing};
+}
+
 function removeRowsFromSheet(rows, sheet) {
     if (!rows.length) {
         return;
@@ -242,4 +284,4 @@ function readResultEntries(wb) {
     return {entries: std_dataset, errors, warnings, missing};
 }
 
-export {injectResults, readResultEntries, processResult, mutateResults};
+export {injectResults, injectAttendance, readResultEntries, processResult, mutateResults};

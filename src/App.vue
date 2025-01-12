@@ -18,13 +18,15 @@
         <v-tab>Welcome</v-tab>
         <v-tab>Combine Results</v-tab>
         <v-tab>Prepare Official</v-tab>
+        <v-tab>Prepare Attendance</v-tab>
         <v-tab>Grade Changes</v-tab>
         <!-- <v-tab>Signer</v-tab> -->
       </v-tabs>
       <Welcome v-if="currentTab == 0" />
       <Combiner v-else-if="currentTab == 1" />
       <Injector v-else-if="currentTab == 2" />
-      <Mutator2 v-else-if="currentTab == 3" />
+      <AttendanceInjector v-else-if="currentTab == 3" />
+      <Mutator2 v-else-if="currentTab == 4" />
       <!-- <Signer v-else-if="currentTab == 2" /> -->
     </v-main>
   </v-app>
@@ -35,6 +37,7 @@ import Welcome from './components/Welcome';
 import Combiner from './components/CombinerV2';
 import Injector from './components/Injector2';
 import Mutator2 from './components/Mutator2';
+import AttendanceInjector from './components/AttendanceInjector.vue';
 // import Signer from './components/Signer.vue';
 
 export default {
@@ -45,6 +48,7 @@ export default {
     Injector,
     Welcome,
     Mutator2,
+    AttendanceInjector,
     // Signer
   },
 

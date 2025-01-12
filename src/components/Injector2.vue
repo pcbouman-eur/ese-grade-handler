@@ -4,29 +4,28 @@
       <v-stepper-header>
         <v-stepper-step editable step="1" :complete="step > 1" >Introduction</v-stepper-step>
         <v-divider />      
-        <v-stepper-step editable step="2" :complete="step > 2" >Final Course Results</v-stepper-step>
+        <v-stepper-step editable step="2" :complete="step > 2" >Course Results</v-stepper-step>
         <v-divider />
-        <v-stepper-step editable step="3" :complete="step > 3" >Attendance</v-stepper-step>
+        <!-- <v-stepper-step editable step="3" :complete="step > 3" >Attendance</v-stepper-step>
+        <v-divider /> -->
+        <v-stepper-step editable step="3" :complete="step > 4" >Osiris File</v-stepper-step>
         <v-divider />
-        <v-stepper-step editable step="4" :complete="step > 4" >SPD File</v-stepper-step>
-        <v-divider />
-        <v-stepper-step editable step="5" >Generate Output</v-stepper-step>
+        <v-stepper-step editable step="4" >Generate Output</v-stepper-step>
       </v-stepper-header>
       <v-stepper-items>
         <v-stepper-content step="1">
           <v-card>
-            <v-card-title>Finalize SPD Results File</v-card-title>
+            <v-card-title>Prepare Official Osiris Results File</v-card-title>
             <v-card-text>
               <p>Read final course results from an <strong>Ans</strong>,
               <strong>Canvas</strong> or <strong>another Spreadsheet dataset</strong>
-              and insert this data into a official spreadsheet as provided by SPD or your
-              secretariat. You can then send this file to SPD to be imported
-              into Osiris.</p>
-              <p><strong>Note: </strong> this tool also has the option
-                to include attendance data exported from sin-online,
-                and automatically generate "Invalid Result" grades
-                in cases students do not meet the school's attendance
-                requirement.
+              and insert this data into a official spreadsheet exported by Osiris
+              or provided your secretariat that can be used to book (partial) course results.
+              The resulting file can be imported in Osiris.</p>
+              <p><strong>Note: </strong> this tool used to allow dealing with
+                attendance data exported from sin-online, but since attendance
+                data is now booked as a separate result, the separate
+                <em>Prepare Attendance</em> tool should be used instead.
               </p>
             </v-card-text>
             <v-card-actions>
@@ -37,10 +36,11 @@
         </v-stepper-content>
         <v-stepper-content step="2">
           <v-card>
-            <v-card-title>Final Course Results</v-card-title>
+            <v-card-title>Course Results</v-card-title>
             <v-card-text>
               <p>
-                Here you can import and select the source data for the final course results.
+                Here you can import and select the source data for the (partial) course result\
+                you want to export to Osiris.
                 You can either use exported data from <strong>Ans</strong>, an export from
                 <strong>Canvas</strong> or a custom spreadsheet with a single header row.
               </p>
@@ -108,7 +108,7 @@
             </v-card-actions>
           </v-card>
         </v-stepper-content>
-        <v-stepper-content step="3">
+        <!-- <v-stepper-content step="3">
           <v-card>
             <v-card-title>Attendance</v-card-title>
             <v-card-text>
@@ -131,20 +131,20 @@
               <v-btn color="primary" @click="step++">Next</v-btn>
             </v-card-actions>
           </v-card>
-        </v-stepper-content>
-        <v-stepper-content step="4">
+        </v-stepper-content> -->
+        <v-stepper-content step="3">
           <v-card>
-            <v-card-title>SPD File</v-card-title>
+            <v-card-title>Osiris File</v-card-title>
             <v-card-text>
-              <p>Here you have to provide the SPD spreadsheet with blank course results that was provided by SPD or the secretariat.</p>
+              <p>Here you have to provide the Osiris spreadsheet with blank course results that was exported from Osiris or provided the secretariat.</p>
               <template v-if="!targetFilename">
-                <h4>Target Spreadsheet (as provided by SPD)</h4>
+                <h4>Target Spreadsheet (as exported from Osiris)</h4>
                 <!-- <v-btn color="primary" block @click="clickOpenTarget">Set Target Spreadsheet</v-btn> -->
                 <FileDropZone accept=".xlsx" :autoSubmit="true" @change="fileTargetChosen"/>
               </template>
               <template v-else>
                 <h5>Target Spreadsheet: {{targetFilename}}</h5>
-                <v-btn block color="error" @click="clearTarget">Clear SPD Target Spreadsheet</v-btn>
+                <v-btn block color="error" @click="clearTarget">Clear Target Spreadsheet</v-btn>
               </template>
             </v-card-text>
             <v-card-actions>
@@ -154,7 +154,7 @@
             </v-card-actions>
           </v-card>
         </v-stepper-content>        
-        <v-stepper-content step="5">
+        <v-stepper-content step="4">
           <v-card>
             <v-card-title>
               Output Spreadsheet
@@ -169,20 +169,20 @@
                 </v-alert>
               </template>
               <template v-else>
-                <p>Download the finalized SPD spreadsheet below.</p>
-                <p>After you download this file, <strong>open it in Excel and then save it using Excel, before sending it to SPD</strong>.
+                <p>Download the finalized Osiris spreadsheet below.</p>
+                <p>After you download this file, <strong>open it in Excel and then save it using Excel, before importing it into Osiris</strong>.
                   This way you make sure the file is correct.</p>
                 <p>Saving the file with Excel is needed due to a technical limitation of the SheetJS library used to generate the
-                  output file. This action ensures all values are saved in a way SPD can properly process the file..
+                  output file. This action ensures all values are saved in a way Osiris can properly process the file..
                 </p>
                 <v-btn block color="primary" @click="downloadResult" :disabled="!injectionResults">Export Results</v-btn>
               </template>
               <template v-if="injectionResults && injectionResults.missing && injectionResults.missing.length > 0">
                 <br />
                 <v-alert color="warning">
-                  <p>There are {{ injectionResults.missing.length }} students who do not appear in the SPD spreadsheet but who do have
+                  <p>There are {{ injectionResults.missing.length }} students who do not appear in the Osiris spreadsheet but who do have
                     a final course result in the source dataset. These are typically considered <strong>Own Risk</strong> students that
-                    have to be submitted separately to SPD. You can download a spreadsheet with these <strong>Own Risk</strong> students
+                    have to be submitted separately to Osiris. You can download a spreadsheet with these <strong>Own Risk</strong> students
                     and their results below.
                   </p>
                   <v-btn block color="primary" @click="downloadMissing" :disabled="!injectionResults || !injectionResults.missing || injectionResults.missing.length == 0">
@@ -249,7 +249,7 @@
   import GradingPolicy from '../util/GradingPolicy';
   import IdentityConfig from '../util/IdentityConfig';
   import {injectResults} from '../util/injectResults';
-  import AttendancePanel from './AttendancePanel';
+  // import AttendancePanel from './AttendancePanel';
   import SourceBookCard from './SourceBookCard';
   import SourceImporter from './SourceImporter';
   import FileDropZone from './FileDropZone';
@@ -257,7 +257,7 @@
   export default {
     name: 'Injector',
     components: {
-      AttendancePanel,
+      // AttendancePanel,
       SourceImporter,
       SourceBookCard,
       FileDropZone
@@ -388,10 +388,10 @@
           result.push('You must select the column from the data source that contains the final course results');
         }
         if (!this.rawTarget) {
-          result.push('You must provide the SPD spreadsheet with blank course results into which the final course results must be injected');
+          result.push('You must provide the Osiris spreadsheet with blank course results into which the final course results must be injected');
         }
         if (this.injectionResults && this.injectionResults.errors && this.injectionResults.errors.length > 0) {
-          result.push('You must make sure that the SPD target spreadsheet has the proper format. Provide the file sent out by SPD/the secretariat as is without any modifications.');
+          result.push('You must make sure that the target Osiris spreadsheet has the proper format. Provide the file from Osiris/the secretariat as is without any modifications.');
         }
         return result;
       },

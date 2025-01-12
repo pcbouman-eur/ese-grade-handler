@@ -17,7 +17,7 @@
             <v-card-text>
               <p>Combine student results from different sources into a single spreadsheet.</p>
               <p>This tool can be used to combine results from custom spreadsheets, Ans, Canvas
-                 and previous SPD spreadsheets. Columns from different files can be selected
+                 and previous Osiris spreadsheets. Columns from different files can be selected
                  to construct a spreadsheet with one row per student, and selected columns
                  from various sources</p>
             </v-card-text>
@@ -36,7 +36,7 @@
               <v-tabs v-model="inputTab" background-color="primary">
                 <v-tabs-slider />
                 <v-tab>Results</v-tab>
-                <v-tab>Attendance</v-tab>
+                <!-- <v-tab>Attendance</v-tab> -->
               </v-tabs>
               <v-tabs-items v-model="inputTab">
                 <v-tab-item>
@@ -59,11 +59,11 @@
                   <p>This option can be used to import results from an SPD file with existing course results.</p>
                   <FileDropZone accept=".xlsx" :autoSubmit="true" @change="spdFileChosen" />                  
                 </v-tab-item> -->
-                <v-tab-item>
+                <!-- <v-tab-item>
                   <h3>Attendance Data</h3>
                   <p>This option can be used to import attendance data exported from sin-online</p>
                   <AttendancePanel v-model="attendance" />                  
-                </v-tab-item>                                                
+                </v-tab-item>                                                 -->
               </v-tabs-items>
               <div v-for="book in workbooks" :key="book.filename">
                   <SourceBookCard :sourceBook="book" :askInclude="true" />
@@ -170,7 +170,7 @@
   import XLSX from 'xlsx';
   import {processWorkbookAttemptAll, processCanvasWorkbook, processSpdWorkbook} from '../util/processWorkbook';
   import exportColumns from '../util/exportColumns';
-  import AttendancePanel from './AttendancePanel';
+  // import AttendancePanel from './AttendancePanel';
   import SourceImporter from './SourceImporter';
   import SourceBookCard from './SourceBookCard';
   import SelectColumn from './SelectColumn';
@@ -182,7 +182,11 @@
   export default {
     name: 'Combiner',
     components: {
-      AttendancePanel, SelectColumn, ConditionPanel, SourceImporter, SourceBookCard
+      // AttendancePanel,
+      SelectColumn,
+      ConditionPanel,
+      SourceImporter,
+      SourceBookCard
     },
     data: () => ({
       workbooks: [],

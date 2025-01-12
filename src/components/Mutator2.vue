@@ -20,7 +20,7 @@
               <p>After course results have been established, this workflow can compare
                  the submitted grades to a spreadsheet with updated course results.
                  The output is a zip-file with signed documents that can be submitted
-                 to SPD with grade changes. 
+                 to Osiris with grade changes. 
               </p>
               <hr/>
               <br />
@@ -64,15 +64,15 @@
           <v-card>
             <v-card-title>Previous Course Results</v-card-title>
             <v-card-text>
-              <p>Here you have to provide the SPD spreadsheet with previous course results that was submitted to SPD by you or the secretariat.</p>
+              <p>Here you have to provide the Osiris spreadsheet with previous course results that was submitted to Osiris by you or the secretariat.</p>
               <template v-if="!targetFilename">
-                <h4>Result Spreadsheet (as previously submitted to SPD)</h4>
+                <h4>Result Spreadsheet (as previously submitted to Osiris)</h4>
                 <!-- <v-btn color="primary" block @click="clickOpenTarget">Set Target Spreadsheet</v-btn> -->
                 <FileDropZone accept=".xlsx" :autoSubmit="true" @change="fileTargetChosen"/>
               </template>
               <template v-else>
                 <h5>Target Spreadsheet: {{targetFilename}}</h5>
-                <v-btn block color="error" @click="clearTarget">Clear SPD Target Spreadsheet</v-btn>
+                <v-btn block color="error" @click="clearTarget">Clear Osiris Target Spreadsheet</v-btn>
               </template>
             </v-card-text>
             <v-card-actions>
@@ -160,9 +160,9 @@
               <template v-if="injectionResults && injectionResults.missing && injectionResults.missing.length > 0">
                 <br />
                 <v-alert color="warning">
-                  <p>There are {{ injectionResults.missing.length }} students who do not appear in the SPD spreadsheet but who do have
+                  <p>There are {{ injectionResults.missing.length }} students who do not appear in the Osiris spreadsheet but who do have
                     a final course result in the source dataset. These are typically considered <strong>Own Risk</strong> students that
-                    have to be submitted separately to SPD. You can download a spreadsheet with these <strong>Own Risk</strong> students
+                    have to be submitted separately to Osiris. You can download a spreadsheet with these <strong>Own Risk</strong> students
                     and their results below.
                   </p>
                   <v-btn block color="primary" @click="downloadMissing" :disabled="!injectionResults || !injectionResults.missing || injectionResults.missing.length == 0">
@@ -478,10 +478,10 @@
           result.push('You must select the column from the data source that contains the final course results');
         }
         if (!this.rawTarget) {
-          result.push('You must provide the SPD spreadsheet with the previous course results');
+          result.push('You must provide the Osiris spreadsheet with the previous course results');
         }
         if (this.injectionResults && this.injectionResults.errors && this.injectionResults.errors.length > 0) {
-          result.push('You must make sure that the SPD target spreadsheet has the proper format. Provide the file sent out by SPD/the secretariat as is without any modifications.');
+          result.push('You must make sure that the Osiris target spreadsheet has the proper format. Provide the file sent out by Osiris/the secretariat as is without any modifications.');
         }
         if (this.teacherName.trim() == '') {
           result.push('You need to provide a name of the teacher');

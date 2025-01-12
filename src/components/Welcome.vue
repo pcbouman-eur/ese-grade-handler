@@ -18,14 +18,16 @@
             master spreadsheet. This makes it easy to compute customized final grades and prevents you from having to use any advanced
             Excel-lookup wizardry for different common data sources. This step can be skipped if your course result is based on a single grade (e.g. final exam).</li>
           <li><strong>Prepare Official: </strong> take a spreadsheet with final course grades (exported from Ans or Canvas, or your own master spreadsheet)
-            and inject the final course results into a SPD spreadsheet as provided by SPD/the secretariat.
+            and inject the final course results into a spreadsheet exported from Osiris or provided by the secretariat.
             Also allows you to include attendance data from sin-online (Academy Attendance is still work in progress).
             All important steps perform useful sanity checks and make sure the final course results are in compliance with school rules.</li>
+            <li><strong>Prepare Attendance: </strong> take a spreadsheet attendance data from Academy Attendance and inject the attendance results
+              into an official Osiris spreadsheet. The minimum number of sessions required to pass attendance can be adjusted.</li>
           <!-- <li><strong>Signer: </strong> take a spreadsheet with final grades in the format processed by SPD, and generates a <code>.zip</code>
             file with signed Word documents for each grade. This is particularly useful to submit grade changes, after SPD changed the policy
             so that now one file per student is required for grade changes.</li> -->
           <li><strong>Grade Changes: </strong> a tool that can be used to prepare relevant documents to change grades, after a spreadsheet with grades was
-            earlier submitted to SPD. Requires that you have a copy of an SPD spreadsheet with the last submitted grades.</li>
+            earlier submitted to Osiris. Requires that you have a copy of an Osiris spreadsheet with the last submitted grades.</li>
         </ul>
         <h3>How does it work</h3>
         <p>For this tool to be able to use your spreadsheet files, they must
@@ -56,7 +58,12 @@
             </li>
         </ul>
         <h3>Attendance Data (new)</h3>
-        <p>Attendance data, exported verbatim from sin-online as <code>xls</code>
+        <p>The new way to deal with attendance data is to export it from Academy Attendance
+          and use this as a partial course result in Osiris. The <em>Prepare Attendance</em>
+          tool can be used for this specific process. Support for attendance data was removed
+          from the other tools.
+        </p>
+        <!-- <p>Attendance data, exported verbatim from sin-online as <code>xls</code>
         file, is now also supported. <strong>Note: Academy Attedance support is not
           implemented yet.</strong>
         If you import attendance data, double entries
@@ -64,7 +71,7 @@
         a 70% threshold is used to determine attendance. This threshold can be
         adjusted. Attendance data is supported both for the combiner, where you
         can add attendance columns to your output, and the injector, where it
-        injects GGR when this is appropiate.</p>
+        injects GGR when this is appropiate.</p> -->
         <h3>Is this safe?</h3>
         <p>All processing of grades happens solely within your web-browser,
           and no data is transmitted over the internet by this tool. Once
