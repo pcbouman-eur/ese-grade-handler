@@ -7,15 +7,25 @@ const SESSION_VALUES = ['Y', 'N', '/']
 const OTHER_VALUE = '_OTHER';
 const BLANK_VALUE = '_BLANK';
 
-const EXEMPTION_COL = 'Vrijstelling';
+const EXEMPTION_COL = ['Vrijstelling', 'Exemption'];
 const EXEMPTION_TRUE_VALUE = 'Y';
-const ID_COL = 'Studentnummer';
-const NAME_COL = 'Naam';
-const GROUP_COL = 'Groep';
-const ABSENT_COL = 'Afwezig';
-const SESSION_COUNT_COL = 'Aantal Lessen';
-const NOT_RECORDED_COL = 'Geen aanwezigheid bijgehouden';
-const PRESENT_COLS = ['Aanwezig', 'Aanwezig, niet verwacht'];
+const ID_COL = ['Studentnummer', 'Student number'];
+const NAME_COL = ['Naam', 'Name'];
+const GROUP_COL = ['Groep', 'Group'];
+const ABSENT_COL = ['Afwezig', 'Absent'];
+const SESSION_COUNT_COL = ['Aantal Lessen', 'Number of Lessons'];
+const NOT_RECORDED_COL = ['Geen aanwezigheid bijgehouden', 'No attendance registered'];
+const PRESENT_COLS = ['Aanwezig', 'Aanwezig, niet verwacht', 'Attended', 'Attended, but not expected'];
+
+// Select column based on list of options
+function getColumn(df, options) {
+    for (let option of options) {
+        if (df[option]) {
+            return df[option].data;
+        }
+    }
+    // TODO: better exception handling here?
+}
 
 // Just a very basic wrapper function
 function academyAttendanceBookToFrame(workbook) {
@@ -92,8 +102,8 @@ function determineCommonSessionCount(df) {
     let mostCommon = 0;
     let mostCommonFreq = 0;
     const frequencies = {};
-    const session_counts = df[SESSION_COUNT_COL].data;
-    const not_recorded_counts = df[NOT_RECORDED_COL].data;
+    const session_counts = getColumn(df, SESSION_COUNT_COL); //df[SESSION_COUNT_COL].data;
+    const not_recorded_counts = getColumn(df, NOT_RECORDED_COL); //df[NOT_RECORDED_COL].data;
     for (let r of df.index) {
         const count = session_counts[r] - not_recorded_counts[r];
         if (!frequencies[count]) {
@@ -117,13 +127,13 @@ const STATUS_DESCRIPTIONS = {
 }
 
 function determineAttendanceStatus(df, minimum_attendance, present_colnames=PRESENT_COLS) {
-    const id_col = df[ID_COL].data;
-    const exemption_col = df[EXEMPTION_COL].data;
+    const id_col = getColumn(df, ID_COL); //df[ID_COL].data;
+    const exemption_col = getColumn(df, EXEMPTION_COL); //df[EXEMPTION_COL].data;
     const present_cols = present_colnames.map(c => df[c].data);
 
-    const name_col = df[NAME_COL].data;
-    const group_col = df[GROUP_COL].data;
-    const absent_col = df[ABSENT_COL].data;
+    const name_col = getColumn(df, NAME_COL); //df[NAME_COL].data;
+    const group_col = getColumn(df, GROUP_COL); //df[GROUP_COL].data;
+    const absent_col = getColumn(df, ABSENT_COL); //df[ABSENT_COL].data;
 
     const stats = {VD: 0, NVD: 0, VR: 0};
     const result = {};
