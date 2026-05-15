@@ -1,4 +1,4 @@
-const THRESHOLD = 10e-8;
+//const THRESHOLD = 10e-8;
 
 const GradingPolicy = {
     alternatives: ['VD', 'NVD', 'VR', 'GGR', 'ONV', 'NO', 'FR'],
@@ -8,7 +8,15 @@ const GradingPolicy = {
     maxGrade: 10,
     decimalSeparator: ',',
     roundingRule(num) {
-        return Math.floor(THRESHOLD + num*10)/10;
+        // This was the old grading rule according to the old Rules and Regulations
+        //return Math.floor(THRESHOLD + num*10)/10;
+        
+        // May 2026:
+        // This is the new rule according to the Rules and Regulations
+        if (5.4 <= num && num < 5.5) {
+            return 5.4
+        }
+        return Math.round(num*10)/10;
     },
     truncateRule(num) {
         return Math.max(this.minGrade, Math.min(this.maxGrade, num));
