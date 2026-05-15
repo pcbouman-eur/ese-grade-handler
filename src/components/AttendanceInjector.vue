@@ -2,16 +2,16 @@
   <div style="display:flex; justify-content: center;">
     <v-stepper v-model="step" non-linear style="width: 100%; max-width: 60em;">
       <v-stepper-header>
-        <v-stepper-step editable step="1" :complete="step > 1" >Introduction</v-stepper-step>
+        <v-stepper-item editable :value="1" :complete="step > 1" title="Introduction" />
         <v-divider />      
-        <v-stepper-step editable step="2" :complete="step > 2" >Attendance Data</v-stepper-step>
+        <v-stepper-item editable :value="2" :complete="step > 2" title="Attendance Data" />
         <v-divider />
-        <v-stepper-step editable step="3" :complete="step > 3" >Osiris File</v-stepper-step>
+        <v-stepper-item editable :value="3" :complete="step > 3" title="Osiris File" />
         <v-divider />
-        <v-stepper-step editable step="4" >Generate Output</v-stepper-step>
+        <v-stepper-item editable :value="4" title="Generate Output" />
       </v-stepper-header>
-      <v-stepper-items>
-        <v-stepper-content step="1">
+      <v-stepper-window>
+        <v-stepper-window-item :value="1">
           <v-card>
             <v-card-title>Academy Attendance to Osiris Results File</v-card-title>
             <v-card-text>
@@ -24,8 +24,8 @@
               <v-btn color="primary" @click="step++">Next</v-btn>                        
             </v-card-actions>
           </v-card>
-        </v-stepper-content>
-        <v-stepper-content step="2">
+        </v-stepper-window-item>
+        <v-stepper-window-item :value="2">
           <v-card>
             <v-card-title>Attendance Data</v-card-title>
             <v-card-text>
@@ -35,12 +35,10 @@
                   <p><strong>Attendance filename:</strong> {{ attendanceFileName }}</p>
                   <p><strong>Attendance data loaded for</strong> {{attendance.shape[0]}} students.</p>
                   <p><strong>Most common number of sessions:</strong> {{mostCommonAttendance}}.</p>
-                  <v-list-item>
-                    <v-list-item-content>
-                      <v-text-field type="number" v-model.number="minimumAttendance"
-                        min="0" label="Minimum attendance threshold" />
-                    </v-list-item-content>
-                  </v-list-item>
+                  <div>
+                    <v-text-field type="number" v-model.number="minimumAttendance"
+                      min="0" label="Minimum attendance threshold" />
+                  </div>
 
                   <v-card>
                   <v-card-title>Result Summary</v-card-title>
@@ -77,8 +75,8 @@
               <v-btn color="primary" @click="step++">Next</v-btn>
             </v-card-actions>
           </v-card>
-        </v-stepper-content>
-        <v-stepper-content step="3">
+        </v-stepper-window-item>
+        <v-stepper-window-item :value="3">
           <v-card>
             <v-card-title>Osiris File</v-card-title>
             <v-card-text>
@@ -98,15 +96,15 @@
               <v-btn color="primary" @click="step++">Next</v-btn>
             </v-card-actions>
           </v-card>
-        </v-stepper-content>        
-        <v-stepper-content step="4">
+        </v-stepper-window-item>        
+        <v-stepper-window-item :value="4">
           <v-card>
             <v-card-title>
               Output Spreadsheet
             </v-card-title>
             <v-card-text>
               <template v-if="hasIssues">
-                <v-alert color="error">
+                <v-alert type="error">
                   <h4>Multiple issues must be resolved before a final file can be generated</h4>
                   <ul>
                     <li v-for="issue in issues" :key="issue"> {{ issue }} </li>
@@ -128,8 +126,8 @@
               <v-spacer />
             </v-card-actions>
           </v-card>
-        </v-stepper-content>
-      </v-stepper-items>
+        </v-stepper-window-item>
+      </v-stepper-window>
     </v-stepper>
   </div>
 </template>
@@ -138,7 +136,7 @@
   import {injectAttendance} from '../util/injectResults';
   import FileDropZone from './FileDropZone';
 
-  import XLSX from 'xlsx';
+  import * as XLSX from 'xlsx';
   import { academyAttendanceBookToFrame, determineCommonSessionCount, determineAttendanceStatus, STATUS_DESCRIPTIONS } from '../util/AcademyAttendance';
   
   export default {

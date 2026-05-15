@@ -21,7 +21,8 @@ export default {
     components: {
         FileDropZone
     },
-    props: ['change'],
+    props: [],
+    emits: ['change'],
     methods: {
         fileChosen(ev) {
             this.$emit('change', ev);

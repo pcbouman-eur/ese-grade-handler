@@ -1,30 +1,30 @@
 <template>
   <v-card>
   <v-card-text>
-    <v-container v-if="availableColumns && availableColumns.length > 0" dense>
+    <v-container v-if="availableColumns && availableColumns.length > 0">
       <v-row dense>
         <v-col cols="12" class="extra-dense">
           <SelectColumn v-model="filterCol"
             label="Column" :availableColumns="availableColumns" :availableKeys="availableKeys"
-            @input="updateLhsCol" />
+            @update:model-value="updateLhsCol" />
         </v-col>
       </v-row>
       <v-row dense>
         <v-col cols="4" class="extra-dense">
           <v-select :items="ConditionOptions"
-                    :item-text="c => c.label + ' (' + c.cmpType +')'"
+                    :item-title="c => c.label + ' (' + c.cmpType +')'"
                     :item-value="c => c"
                     v-model="cmpType"
-                    @change="updateResult"
+                    @update:model-value="updateResult"
                     label="Comparison Type"
-                    outlined
-                    dense />
+                    variant="outlined"
+                    density="compact" />
         </v-col>
         <v-col cols="8" class="extra-dense">
-          <v-text-field v-if="showRhsValue" v-model="rhsValue" @input="updateResult" label="Value" outlined dense />
+          <v-text-field v-if="showRhsValue" v-model="rhsValue" @input="updateResult" label="Value" variant="outlined" density="compact" />
           <SelectColumn v-if="showRhsColumn" v-model="rhsCol"
             label="Column" :availableColumns="availableColumns" :availableKeys="availableKeys"
-            @input="updateRhsCol"/>
+            @update:model-value="updateRhsCol"/>
         </v-col>
       </v-row>
     </v-container>
@@ -42,6 +42,7 @@
       SelectColumn
     },
     props: ['availableColumns', 'availableKeys'],
+    emits: ['update:modelValue'],
     data: () => ({
       filterCol: null,
       rhsCol: null,
@@ -73,7 +74,7 @@
             const rhsCol = this.availableColumns[this.rhsCol.outputColumn.index];
             result.rhs = {name: rhsCol.outputName, data: rhsCol};
           }
-          this.$emit('input', result);
+          this.$emit('update:modelValue', result);
         }
       },
       init() {

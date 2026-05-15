@@ -1,5 +1,5 @@
 import exportColumns from '../util/exportColumns';
-import XLSX from 'xlsx';
+import * as XLSX from 'xlsx';
 
 const SHEET_NAME = 'Toetslijst';
 const ID_CELL = 'A8';

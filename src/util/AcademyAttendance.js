@@ -1,5 +1,5 @@
-import XLSX from 'xlsx';
-import {DataFrame} from 'danfojs/dist/core/frame';
+import * as XLSX from 'xlsx';
+import { DataFrame } from './SimpleDataFrame';
 
 const SHEET_KEY = 'Export';
 

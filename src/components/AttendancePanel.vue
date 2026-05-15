@@ -1,24 +1,22 @@
 <template>
   <div style="margin-top: 1em">
-    <v-card v-if="value">
+    <v-card v-if="modelValue">
       <v-card-title>Attendance data loaded</v-card-title>
-      <v-card-text v-if="value && value.sessions">
+      <v-card-text v-if="modelValue && modelValue.sessions">
         <h5>Attendance data loaded for {{attendanceCount}} students.
-            {{value.sessions.length}} sessions were found.
+            {{modelValue.sessions.length}} sessions were found.
         </h5>
         <v-list-item>
-          <v-list-item-content>
-            <v-text-field type="number" v-model.number="value.threshold"
-              min="0" :max="value.sessions.length" label="Minimum attendance threshold" />
-          </v-list-item-content>
+          <v-text-field type="number" v-model.number="modelValue.threshold"
+            min="0" :max="modelValue.sessions.length" label="Minimum attendance threshold" />
         </v-list-item>
-        <v-alert v-if="value.duplicates.length > 0" type="warning">
+        <v-alert v-if="modelValue.duplicates.length > 0" type="warning">
           Multiple entries were found for the following students whose data
-          was merged: {{value.duplicates.join(', ')}}
+          was merged: {{modelValue.duplicates.join(', ')}}
         </v-alert>
       </v-card-text>
-      <v-card-text v-if="value && !value.sessions">
-        <v-alert color="error">
+      <v-card-text v-if="modelValue && !modelValue.sessions">
+        <v-alert type="error">
           The attendance data was not correctly loaded. <br />
           Please make sure you follow the explained steps to import the data. <br />
           Your filename should start with <code>att-matrix</code> <br />
@@ -26,7 +24,7 @@
         </v-alert>
       </v-card-text>
     </v-card>
-    <template v-if="value">
+    <template v-if="modelValue">
       <br />
       <v-btn block color="error" @click="clear">Clear Attendance Data</v-btn>
     </template>
@@ -39,14 +37,15 @@
 </template>
 
 <script>
-  import XLSX from 'xlsx';
+  import * as XLSX from 'xlsx';
   import FileDropZone from './FileDropZone';
   import {processAttendanceWorkbook} from '../util/processWorkbook';
 
   export default {
     name: 'AttendancePanel',
     components: { FileDropZone },
-    props: ['value'],
+    props: ['modelValue'],
+    emits: ['update:modelValue'],
     methods: {
       // clickAttOpen() {
       //   this.$refs.openAttFileInput.click();
@@ -59,19 +58,19 @@
             const data = new Uint8Array(ev2.target.result);
             const workbook = XLSX.read(data, {type: 'array'});
             const att = processAttendanceWorkbook(workbook);
-            this.$emit('input', att);
+            this.$emit('update:modelValue', att);
           };
           reader.readAsArrayBuffer(file);
         }
       },
       clear() {
-        this.$emit('input', null);
+        this.$emit('update:modelValue', null);
       }
     },
     computed: {
       attendanceCount() {
-        if (this.value && this.value.data) {
-          return Object.keys(this.value.data).length;
+        if (this.modelValue && this.modelValue.data) {
+          return Object.keys(this.modelValue.data).length;
         }
         return 0;
       }

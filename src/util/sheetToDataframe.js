@@ -1,5 +1,5 @@
-import XLSX from 'xlsx';
-import {DataFrame} from 'danfojs/dist/core/frame';
+import * as XLSX from 'xlsx';
+import { DataFrame } from './SimpleDataFrame';
 
 function sheetToDataframe(worksheet, header_index=1, data_index=2) {
     const range = XLSX.utils.decode_range(worksheet['!ref']);

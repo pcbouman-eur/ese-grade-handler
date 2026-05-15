@@ -2,16 +2,16 @@
   <div style="display:flex; justify-content: center;">
     <v-stepper v-model="step" non-linear style="width: 100%; max-width: 60em;">
       <v-stepper-header>
-        <v-stepper-step editable step="1" :complete="step > 1" >Introduction</v-stepper-step>
+        <v-stepper-item editable :value="1" :complete="step > 1" title="Introduction" />
         <v-divider />      
-        <v-stepper-step editable step="2" :complete="step > 2" >Load Data</v-stepper-step>
+        <v-stepper-item editable :value="2" :complete="step > 2" title="Load Data" />
         <v-divider />
-        <v-stepper-step editable step="3" :complete="step > 3" >Define Output Columns</v-stepper-step>
+        <v-stepper-item editable :value="3" :complete="step > 3" title="Define Output Columns" />
         <v-divider />
-        <v-stepper-step editable step="4" >Obtain Results</v-stepper-step>
+        <v-stepper-item editable :value="4" title="Obtain Results" />
       </v-stepper-header>
-      <v-stepper-items>
-        <v-stepper-content step="1">
+      <v-stepper-window>
+        <v-stepper-window-item :value="1">
           <v-card>
             <v-card-title>Combine Results</v-card-title>
             <v-card-text>
@@ -26,75 +26,46 @@
               <v-btn color="primary" @click="step++">Next</v-btn>                        
             </v-card-actions>
           </v-card>
-        </v-stepper-content>
-        <v-stepper-content step="2">
+        </v-stepper-window-item>
+        <v-stepper-window-item :value="2">
           <v-card>
             <v-card-title>Input Spreadsheets</v-card-title>
             <v-card-text>
               <h3>Import Data</h3>
               <p>Choose whether you want to import regular results or attendance data</p>
-              <v-tabs v-model="inputTab" background-color="primary">
-                <v-tabs-slider />
-                <v-tab>Results</v-tab>
+              <v-tabs v-model="inputTab" bg-color="primary">
+                <v-tab :value="0">Results</v-tab>
                 <!-- <v-tab>Attendance</v-tab> -->
               </v-tabs>
-              <v-tabs-items v-model="inputTab">
-                <v-tab-item>
+              <v-window v-model="inputTab">
+                <v-window-item :value="0">
                   <SourceImporter @change="fileChosen" />
-                </v-tab-item>
-                <!-- <v-tab-item>
-                  <h3>Ans Export or Regular Spreadsheet</h3>
-                  <p>This option can be used to import results from Ans (exported as "Excel EN")
-                    or standard Excel workbooks or csv files.
-                  </p>
-                  <FileDropZone accept=".xlsx,.csv" :autoSubmit="true" @change="fileChosen" />
-                </v-tab-item>
-                <v-tab-item>
-                  <h3>Canvas CSV Files</h3>
-                  <p>This option can be used to import a CSV file exported from the Canvas gradebook.</p>
-                  <FileDropZone accept=".csv" :autoSubmit="true" @change="canvasFileChosen" />                  
-                </v-tab-item>
-                <v-tab-item>
-                  <h3>SPD Excel Files</h3>
-                  <p>This option can be used to import results from an SPD file with existing course results.</p>
-                  <FileDropZone accept=".xlsx" :autoSubmit="true" @change="spdFileChosen" />                  
-                </v-tab-item> -->
-                <!-- <v-tab-item>
+                </v-window-item>
+                <!-- <v-window-item :value="1">
                   <h3>Attendance Data</h3>
                   <p>This option can be used to import attendance data exported from sin-online</p>
                   <AttendancePanel v-model="attendance" />                  
-                </v-tab-item>                                                 -->
-              </v-tabs-items>
+                </v-window-item> -->
+              </v-window>
               <div v-for="book in workbooks" :key="book.filename">
                   <SourceBookCard :sourceBook="book" :askInclude="true" />
-                  <!-- <h3>{{book.filename}}</h3>
-                  <v-card v-for="frame in book.frames" :key="frame.sheetName">
-                    <v-card-title>{{frame.sheetName}}</v-card-title>
-                    <v-card-actions>
-                      <v-switch label="Add all students to output" v-model="frame.includeStudents" />
-                    </v-card-actions>
-                  </v-card>
-                  <v-alert v-if="book.skipped.length > 0" type="warning">
-                    {{book.skipped.length}} sheets were skipped
-                  </v-alert> -->
               </div>
             </v-card-text>
             <v-card-actions>
-
               <v-btn color="primary" @click="step--">Previous</v-btn>
               <v-spacer />
               <v-btn color="primary" @click="step++">Next</v-btn>                        
             </v-card-actions>
           </v-card>
-        </v-stepper-content>
-        <v-stepper-content step="3">
+        </v-stepper-window-item>
+        <v-stepper-window-item :value="3">
           <v-card>
             <v-card-title>Output Spreadsheet</v-card-title>
             <v-card-text>
-              <v-card v-if="this.availableKeys.length > 0">
+              <v-card v-if="availableKeys.length > 0">
                 <v-card-title>Output Columns</v-card-title>
                 <v-card-text>
-                  <v-container dense class="colContainer">
+                  <v-container class="colContainer">
                     <v-row class="outputCols" dense>            
                       <v-col cols="1" class="dense">
                         <div>Key</div>
@@ -103,12 +74,11 @@
                         <v-select :items="availableKeys"
                             v-model="keyColumn"
                             label="Key type"
-                            outlined
-                            dense />
+                            variant="outlined"
+                            density="compact" />
                       </v-col>
                     </v-row>            
                     <v-row v-for="(col, idx) in outputColumns" :key="'output-'+idx" class="outputCols" dense>            
-                  <!-- <h4>Output Column  <v-chip x-small color="danger">delete</v-chip></h4> -->
                       <v-col cols="1" class="dense">
                         <div>Col {{idx+1}}.</div>
                       </v-col>
@@ -120,13 +90,13 @@
                       <v-col cols="4" class="dense">
                         <v-text-field label="Output Column Name"
                                       v-model="col.outputName"
-                                      outlined
-                                      dense />
+                                      variant="outlined"
+                                      density="compact" />
                       </v-col>
                       <v-col cols="1" class="dense">
-                        <v-btn @click="moveColumn(idx, false)" :disabled="idx >= outputColumns.length-1" x-small icon color="primary"><v-icon>mdi-arrow-down</v-icon></v-btn>
-                        <v-btn @click="moveColumn(idx, true)"  :disabled="idx == 0" x-small icon color="primary"><v-icon>mdi-arrow-up</v-icon></v-btn>
-                        <v-btn @click="deleteColumn(idx)" x-small icon color="error"><v-icon>mdi-delete</v-icon></v-btn>
+                        <v-btn @click="moveColumn(idx, false)" :disabled="idx >= outputColumns.length-1" size="x-small" icon color="primary"><v-icon>mdi-arrow-down</v-icon></v-btn>
+                        <v-btn @click="moveColumn(idx, true)"  :disabled="idx == 0" size="x-small" icon color="primary"><v-icon>mdi-arrow-up</v-icon></v-btn>
+                        <v-btn @click="deleteColumn(idx)" size="x-small" icon color="error"><v-icon>mdi-delete</v-icon></v-btn>
                       </v-col>
                     </v-row>
                   </v-container>
@@ -141,8 +111,8 @@
               <v-btn color="primary" @click="step++">Next</v-btn>
             </v-card-actions>
           </v-card>
-        </v-stepper-content>
-        <v-stepper-content step="4">
+        </v-stepper-window-item>
+        <v-stepper-window-item :value="4">
           <v-card>
             <v-card-title>
               Output Spreadsheet
@@ -153,21 +123,21 @@
                 <p>Use these option if you want to conditionally remove certain students from the output.</p>
                 <v-switch v-model="addFilter" :label="filterLabel" />
                 <ConditionPanel v-show="addFilter" :availableColumns="availableColumns" :availableKeys="availableKeys" 
-                                @input="updateFilter"/>
+                                @update:model-value="updateFilter"/>
             </v-card-text>
             <v-card-actions>
               <v-btn color="primary" @click="step--">Previous</v-btn>
               <v-spacer /><v-btn color="primary" :disabled="cantExport" @click="exportSheet">Export Spreadsheet</v-btn>
             </v-card-actions>
           </v-card>
-        </v-stepper-content>
-      </v-stepper-items>
+        </v-stepper-window-item>
+      </v-stepper-window>
     </v-stepper>
   </div>
 </template>
 
 <script>
-  import XLSX from 'xlsx';
+  import * as XLSX from 'xlsx';
   import {processWorkbookAttemptAll, processCanvasWorkbook, processSpdWorkbook} from '../util/processWorkbook';
   import exportColumns from '../util/exportColumns';
   // import AttendancePanel from './AttendancePanel';

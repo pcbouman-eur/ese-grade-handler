@@ -2,18 +2,16 @@
   <div style="display:flex; justify-content: center;">
     <v-stepper v-model="step" non-linear style="width: 100%; max-width: 60em;">
       <v-stepper-header>
-        <v-stepper-step editable step="1" :complete="step > 1" >Introduction</v-stepper-step>
+        <v-stepper-item editable :value="1" :complete="step > 1" title="Introduction" />
         <v-divider />      
-        <v-stepper-step editable step="2" :complete="step > 2" >Course Results</v-stepper-step>
+        <v-stepper-item editable :value="2" :complete="step > 2" title="Course Results" />
         <v-divider />
-        <!-- <v-stepper-step editable step="3" :complete="step > 3" >Attendance</v-stepper-step>
-        <v-divider /> -->
-        <v-stepper-step editable step="3" :complete="step > 4" >Osiris File</v-stepper-step>
+        <v-stepper-item editable :value="3" :complete="step > 3" title="Osiris File" />
         <v-divider />
-        <v-stepper-step editable step="4" >Generate Output</v-stepper-step>
+        <v-stepper-item editable :value="4" title="Generate Output" />
       </v-stepper-header>
-      <v-stepper-items>
-        <v-stepper-content step="1">
+      <v-stepper-window>
+        <v-stepper-window-item :value="1">
           <v-card>
             <v-card-title>Prepare Official Osiris Results File</v-card-title>
             <v-card-text>
@@ -33,8 +31,8 @@
               <v-btn color="primary" @click="step++">Next</v-btn>                        
             </v-card-actions>
           </v-card>
-        </v-stepper-content>
-        <v-stepper-content step="2">
+        </v-stepper-window-item>
+        <v-stepper-window-item :value="2">
           <v-card>
             <v-card-title>Course Results</v-card-title>
             <v-card-text>
@@ -45,19 +43,6 @@
                 <strong>Canvas</strong> or a custom spreadsheet with a single header row.
               </p>
               <SourceImporter v-if="!sourceBook" @change="fileChosen" />
-              <!-- <template v-if="!sourceBook">
-                <h3>Import source file</h3>
-                <p>File supports of different sources are supported:</p>
-                <ul>
-                  <li><strong>Regular Spreadsheets and Ans Spreadsheets:</strong>
-                      results from Ans (exported as "Excel EN"), standard Excel workbooks
-                      or csv files with tables that contain a single header row
-                  </li>
-                  <li><strong>Canvas CSV Files:</strong> a <code>.csv</code> file exported from the Canvas gradebook.</li>
-                  <li><strong>SPD results files:</strong> a spreadsheet file as used by SPD to process grade results</li>
-                </ul>
-                <FileDropZone accept=".xlsx,.csv" :autoSubmit="true" @change="fileChosen" />
-              </template> -->
               <v-card v-else>
                 <v-btn block color="error" @click="sourceBook = null">Clear course result data</v-btn>
                 <br />
@@ -69,35 +54,14 @@
                   class="margin-top"
                   :disabled="availableColumns.length == 0"
                   :items="availableColumns"
-                  :item-text="availableColumnToText"
+                  :item-title="availableColumnToText"
                   :item-value="availableColumnToValue"
                   v-model="sourceColumn"
                   label="Source Column"
-                  outlined 
+                  variant="outlined"
                   block />
                   <br />
                   <SourceBookCard :sourceBook="sourceBook" />
-                  <!-- <v-card >
-                    <v-card-title>Data source: {{sourceBook.filename}}</v-card-title>
-                    <v-card-text>
-                      <h5>The following sheets were found</h5>
-                      <v-list-item v-for="frame in sourceBook.frames" :key="frame.sheetName">
-                        <v-list-item-content>{{frame.sheetName}}</v-list-item-content>
-                      </v-list-item>
-                      <v-alert v-if="sourceBook.frames.length > 0" type="success">
-                        {{ sourceBook.frames.length }} sheets successfully imported.
-                        <ul>
-                          <li v-for="frame of sourceBook.frames" :key="frame.sheetName">{{ frame.sheetName }}</li>
-                        </ul>
-                      </v-alert>
-                      <v-alert v-if="sourceBook.skipped.length > 0" type="warning">
-                        {{sourceBook.skipped.length}} sheets were skipped.
-                        <br /> Click the troubleshoot button to see details.
-                        <br />
-                        <TroubleshootDialog :workbook="sourceBook" />
-                      </v-alert>              
-                    </v-card-text>
-                  </v-card> -->
                 </v-card-text>                    
               </v-card>
             </v-card-text>
@@ -107,39 +71,14 @@
               <v-btn color="primary" @click="step++">Next</v-btn>                        
             </v-card-actions>
           </v-card>
-        </v-stepper-content>
-        <!-- <v-stepper-content step="3">
-          <v-card>
-            <v-card-title>Attendance</v-card-title>
-            <v-card-text>
-              <v-btn block color="primary" @click="step++">Skip Attendance Data</v-btn>
-              <br />
-              <p>If you have an attendance requirement, you can include the attendance data below.</p>
-              <p><strong>Note: </strong> the inclusion of attendance data is optional, and this step can be skipped if no attendance requirement applies to your course,
-                or if you already computed <code>GGR</code> or <code>IVR</code> results for your final course results.</p>
-              <p>Attendance data can be exported from sin-online as follows:</p>
-              <ol>
-                <li>Go to the owner part of your course's channel and click "Registrations"</li>
-                <li>Check all boxes in the "Select" column (unfortunately you have to click them all, it seems)</li>
-                <li>Click the "Export Att" button. An old school Excel <code>.xls</code> file will download. You can directly upload that file below.</li>
-              </ol>
-              <AttendancePanel v-model="attendance" />
-            </v-card-text>
-            <v-card-actions>
-              <v-btn color="primary" @click="step--">Previous</v-btn>
-              <v-spacer />
-              <v-btn color="primary" @click="step++">Next</v-btn>
-            </v-card-actions>
-          </v-card>
-        </v-stepper-content> -->
-        <v-stepper-content step="3">
+        </v-stepper-window-item>
+        <v-stepper-window-item :value="3">
           <v-card>
             <v-card-title>Osiris File</v-card-title>
             <v-card-text>
               <p>Here you have to provide the Osiris spreadsheet with blank course results that was exported from Osiris or provided the secretariat.</p>
               <template v-if="!targetFilename">
                 <h4>Target Spreadsheet (as exported from Osiris)</h4>
-                <!-- <v-btn color="primary" block @click="clickOpenTarget">Set Target Spreadsheet</v-btn> -->
                 <FileDropZone accept=".xlsx" :autoSubmit="true" @change="fileTargetChosen"/>
               </template>
               <template v-else>
@@ -153,15 +92,15 @@
               <v-btn color="primary" @click="step++">Next</v-btn>
             </v-card-actions>
           </v-card>
-        </v-stepper-content>        
-        <v-stepper-content step="4">
+        </v-stepper-window-item>
+        <v-stepper-window-item :value="4">
           <v-card>
             <v-card-title>
               Output Spreadsheet
             </v-card-title>
             <v-card-text>
               <template v-if="hasIssues">
-                <v-alert color="error">
+                <v-alert type="error">
                   <h4>Multiple issues must be resolved before a final file can be generated</h4>
                   <ul>
                     <li v-for="issue in issues" :key="issue"> {{ issue }} </li>
@@ -179,7 +118,7 @@
               </template>
               <template v-if="injectionResults && injectionResults.missing && injectionResults.missing.length > 0">
                 <br />
-                <v-alert color="warning">
+                <v-alert type="warning">
                   <p>There are {{ injectionResults.missing.length }} students who do not appear in the Osiris spreadsheet but who do have
                     a final course result in the source dataset. These are typically considered <strong>Own Risk</strong> students that
                     have to be submitted separately to Osiris. You can download a spreadsheet with these <strong>Own Risk</strong> students
@@ -198,16 +137,16 @@
                 </v-alert>
                 <v-expansion-panels>
                   <v-expansion-panel>
-                    <v-expansion-panel-header>
+                    <v-expansion-panel-title>
                       View Errors 
-                    </v-expansion-panel-header>
-                    <v-expansion-panel-content>
+                    </v-expansion-panel-title>
+                    <v-expansion-panel-text>
                       <ul>
                         <li v-for="(err,idx) in injectionResults.errors" :key="'error-'+idx">
                           {{err}}
                         </li>
                       </ul>
-                    </v-expansion-panel-content>
+                    </v-expansion-panel-text>
                   </v-expansion-panel>
                 </v-expansion-panels>
               </template>
@@ -218,16 +157,16 @@
                 </v-alert>
                 <v-expansion-panels>
                   <v-expansion-panel>
-                    <v-expansion-panel-header>
+                    <v-expansion-panel-title>
                       View Warnings
-                    </v-expansion-panel-header>
-                    <v-expansion-panel-content>
+                    </v-expansion-panel-title>
+                    <v-expansion-panel-text>
                       <ul>
                         <li v-for="(warning,idx) in injectionResults.warnings" :key="'warning-'+idx">
                           {{warning}}
                         </li>
                       </ul>
-                    </v-expansion-panel-content>
+                    </v-expansion-panel-text>
                   </v-expansion-panel>
                 </v-expansion-panels>
               </template>
@@ -237,14 +176,14 @@
               <v-spacer />
             </v-card-actions>
           </v-card>
-        </v-stepper-content>
-      </v-stepper-items>
+        </v-stepper-window-item>
+      </v-stepper-window>
     </v-stepper>
   </div>
 </template>
 
 <script>
-  import XLSX from 'xlsx';
+  import * as XLSX from 'xlsx';
   import {processWorkbookAttemptAll} from '../util/processWorkbook';
   import GradingPolicy from '../util/GradingPolicy';
   import IdentityConfig from '../util/IdentityConfig';

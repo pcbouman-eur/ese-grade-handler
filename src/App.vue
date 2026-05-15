@@ -1,9 +1,7 @@
 <template>
   <v-app>
     <v-app-bar
-      app
       color="primary"
-      dark
     >
       <div class="d-flex align-center">
         <h3>ESE Grade Handler</h3>
@@ -14,13 +12,13 @@
     </v-app-bar>
 
     <v-main>
-      <v-tabs centered v-model="currentTab">
-        <v-tab>Welcome</v-tab>
-        <v-tab>Combine Results</v-tab>
-        <v-tab>Prepare Official</v-tab>
-        <v-tab>Prepare Attendance</v-tab>
-        <v-tab>Grade Changes</v-tab>
-        <!-- <v-tab>Signer</v-tab> -->
+      <v-tabs align-tabs="center" v-model="currentTab">
+        <v-tab :value="0">Welcome</v-tab>
+        <v-tab :value="1">Combine Results</v-tab>
+        <v-tab :value="2">Prepare Official</v-tab>
+        <v-tab :value="3">Prepare Attendance</v-tab>
+        <v-tab :value="4">Grade Changes</v-tab>
+        <!-- <v-tab :value="5">Signer</v-tab> -->
       </v-tabs>
       <Welcome v-if="currentTab == 0" />
       <Combiner v-else-if="currentTab == 1" />

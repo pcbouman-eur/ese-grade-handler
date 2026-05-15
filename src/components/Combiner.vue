@@ -53,8 +53,8 @@
         <br />
         <v-switch label="Remove students without any results" v-model="dropEmptyStudents" />
 
-        <v-card v-if="this.availableKeys.length > 0">
-          <v-container dense class="colContainer">
+        <v-card v-if="availableKeys.length > 0">
+          <v-container class="colContainer">
             <v-row class="outputCols" dense>            
           <!-- <h4>Output Column  <v-chip x-small color="danger">delete</v-chip></h4> -->
               <v-col cols="1" class="dense">
@@ -64,8 +64,8 @@
                 <v-select :items="availableKeys"
                     v-model="keyColumn"
                     label="Key type"
-                    outlined
-                    dense />
+                    variant="outlined"
+                    density="compact" />
               </v-col>
             </v-row>            
             <v-row v-for="(col, idx) in outputColumns" :key="'output-'+idx" class="outputCols" dense>            
@@ -81,22 +81,22 @@
               <v-col cols="4" class="dense">
                 <v-text-field label="Output Column Name"
                               v-model="col.outputName"
-                              outlined
-                              dense />
+                              variant="outlined"
+                              density="compact" />
               </v-col>
               <v-col cols="1" class="dense">
-                <v-btn @click="moveColumn(idx, false)" :disabled="idx >= outputColumns.length-1" x-small icon color="primary"><v-icon>mdi-arrow-down</v-icon></v-btn>
-                <v-btn @click="moveColumn(idx, true)"  :disabled="idx == 0" x-small icon color="primary"><v-icon>mdi-arrow-up</v-icon></v-btn>
-                <v-btn @click="deleteColumn(idx)" x-small icon color="error"><v-icon>mdi-delete</v-icon></v-btn>
+                <v-btn @click="moveColumn(idx, false)" :disabled="idx >= outputColumns.length-1" size="x-small" icon color="primary"><v-icon>mdi-arrow-down</v-icon></v-btn>
+                <v-btn @click="moveColumn(idx, true)"  :disabled="idx == 0" size="x-small" icon color="primary"><v-icon>mdi-arrow-up</v-icon></v-btn>
+                <v-btn @click="deleteColumn(idx)" size="x-small" icon color="error"><v-icon>mdi-delete</v-icon></v-btn>
               </v-col>
             </v-row>
           </v-container>
         </v-card>
-        <div v-if="this.availableColumns.length > 0">
+        <div v-if="availableColumns.length > 0">
           <h4>Filter Students</h4>
           <v-switch v-model="addFilter" :label="filterLabel" />
           <ConditionPanel v-show="addFilter" :availableColumns="availableColumns" :availableKeys="availableKeys" 
-                          @input="updateFilter"/>
+                          @update:model-value="updateFilter"/>
         </div>
       </v-col>
     </v-row>
@@ -104,7 +104,7 @@
 </template>
 
 <script>
-  import XLSX from 'xlsx';
+  import * as XLSX from 'xlsx';
   import {processWorkbook, processCanvasWorkbook, processSpdWorkbook} from '../util/processWorkbook';
   import exportColumns from '../util/exportColumns';
   import AttendancePanel from './AttendancePanel';

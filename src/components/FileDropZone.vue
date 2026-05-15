@@ -3,7 +3,7 @@
     <v-sheet
       tabindex="0"                     
       title="Click to grap a file from your PC!"
-      color="secondary lighten-4"
+      color="grey-lighten-3"
       width="100%"
       class="pa-2 sheet"
       @dragenter="dragStart"
@@ -38,7 +38,7 @@
       <v-row justify="center" v-if="currentFiles">
           <div class="selection-box">
               <h3>Selected files:</h3>
-              <v-chip class="spacing" small v-for="(currentFile, key) in currentFiles" :key="'file-'+key">{{currentFile.name}}</v-chip>
+              <v-chip class="spacing" size="small" v-for="(currentFile, key) in currentFiles" :key="'file-'+key">{{currentFile.name}}</v-chip>
           </div>
       </v-row>
       <v-row justify="center" v-if="(currentFiles || error) && !dragover">
@@ -69,6 +69,7 @@
 export default {
     name: 'FileDropZone',
     props: ['accept', 'acceptError', 'autoSubmit', 'allowMultiple'],
+    emits: ['change'],
     data: () => ({
         dragover: false,
         error: null,

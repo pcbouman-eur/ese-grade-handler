@@ -1,19 +1,19 @@
 <template>
   <div style="display:flex; justify-content: center;">
-    <v-stepper v-model="step" non-linear style="width: 100%; max-width: 60em;" @change="stepperChange()">
+    <v-stepper v-model="step" non-linear style="width: 100%; max-width: 60em;" @update:modelValue="stepperChange()">
       <v-stepper-header>
-        <v-stepper-step editable step="1" :complete="step > 1" >Updated Results</v-stepper-step>
+        <v-stepper-item editable :value="1" :complete="step > 1" title="Updated Results" />
         <v-divider />      
-        <v-stepper-step editable step="2" :complete="step > 2" >Previous Results</v-stepper-step>
+        <v-stepper-item editable :value="2" :complete="step > 2" title="Previous Results" />
         <v-divider />
-        <v-stepper-step editable step="3" :complete="step > 3" >Attendance</v-stepper-step>
+        <v-stepper-item editable :value="3" :complete="step > 3" title="Attendance" />
         <v-divider />
-        <v-stepper-step editable step="4" :complete="step > 4" >Signature</v-stepper-step>
+        <v-stepper-item editable :value="4" :complete="step > 4" title="Signature" />
         <v-divider />
-        <v-stepper-step editable step="5" >Generate Output</v-stepper-step>
+        <v-stepper-item editable :value="5" title="Generate Output" />
       </v-stepper-header>
-      <v-stepper-items>
-        <v-stepper-content step="1">
+      <v-stepper-window>
+        <v-stepper-window-item :value="1">
           <v-card>
             <v-card-title>Mutate Results</v-card-title>
             <v-card-text>
@@ -36,18 +36,18 @@
                 <br />
                 <v-card-title>Data source loaded. Choose final result</v-card-title>
                 <v-card-text>
-                <v-alert color="warning" v-if="!sourceColumn">Please pick a column with final results before you continue!</v-alert>
+                <v-alert type="warning" v-if="!sourceColumn">Please pick a column with final results before you continue!</v-alert>
                 <p v-if="availableColumns.length > 0">After you have imported a data source, choose the column from that data source that contains the updated final course result</p>
                 <p v-else>While a dataset was loaded, no suitable columns to use for the final course results were found. Make sure your dataset is valid and correct.</p>
                 <v-select
                   class="margin-top"
                   :disabled="availableColumns.length == 0"
                   :items="availableColumns"
-                  :item-text="availableColumnToText"
+                  :item-title="availableColumnToText"
                   :item-value="availableColumnToValue"
                   v-model="sourceColumn"
                   label="Source Column"
-                  outlined 
+                  variant="outlined"
                   block />
                   <br />
                   <SourceBookCard :sourceBook="sourceBook" />
@@ -59,15 +59,14 @@
               <v-btn color="primary" @click="step++">Next</v-btn>                        
             </v-card-actions>
           </v-card>
-        </v-stepper-content>
-        <v-stepper-content step="2">
+        </v-stepper-window-item>
+        <v-stepper-window-item :value="2">
           <v-card>
             <v-card-title>Previous Course Results</v-card-title>
             <v-card-text>
               <p>Here you have to provide the Osiris spreadsheet with previous course results that was submitted to Osiris by you or the secretariat.</p>
               <template v-if="!targetFilename">
                 <h4>Result Spreadsheet (as previously submitted to Osiris)</h4>
-                <!-- <v-btn color="primary" block @click="clickOpenTarget">Set Target Spreadsheet</v-btn> -->
                 <FileDropZone accept=".xlsx" :autoSubmit="true" @change="fileTargetChosen"/>
               </template>
               <template v-else>
@@ -81,8 +80,8 @@
               <v-btn color="primary" @click="step++">Next</v-btn>
             </v-card-actions>
           </v-card>
-        </v-stepper-content>
-        <v-stepper-content step="3">
+        </v-stepper-window-item>
+        <v-stepper-window-item :value="3">
           <v-card>
             <v-card-title>Attendance</v-card-title>
             <v-card-text>
@@ -105,9 +104,9 @@
               <v-btn color="primary" @click="step++">Next</v-btn>
             </v-card-actions>
           </v-card>
-        </v-stepper-content>
-        <!-- start -->
-        <v-stepper-content step="4">
+        </v-stepper-window-item>
+        <!-- end -->        
+        <v-stepper-window-item :value="4">
           <v-card>
             <v-card-title>Signature</v-card-title>
             <v-card-text>
@@ -121,10 +120,10 @@
               </v-container>
               <hr />
               <p>Please draw your signature below.  This signature will be copied to all generated forms.</p>
-              <vueSignature class="signature-box" ref="signature" :w="signatureWidth+'px'" :h="signatureHeight+'px'" />
+              <!-- vueSignature removed (vue-signature not compatible with Vue 3) -->
               <div>
-                <v-btn class="draw-button" fab small color="primary" @click="$refs.signature.undo()"><v-icon dark>mdi-undo</v-icon></v-btn>
-                <v-btn class="draw-button" fab small color="error" @click="$refs.signature.clear()"><v-icon dark>mdi-delete</v-icon></v-btn>
+                <v-btn class="draw-button" icon size="small" color="primary" @click="$refs.signature && $refs.signature.undo()"><v-icon>mdi-undo</v-icon></v-btn>
+                <v-btn class="draw-button" icon size="small" color="error" @click="$refs.signature && $refs.signature.clear()"><v-icon>mdi-delete</v-icon></v-btn>
               </div>
             </v-card-text>
             <v-card-actions>
@@ -133,16 +132,15 @@
               <v-btn color="primary" @click="step++">Next</v-btn>
             </v-card-actions>
           </v-card>
-        </v-stepper-content>
-        <!-- end -->        
-        <v-stepper-content step="5">
+        </v-stepper-window-item>
+        <v-stepper-window-item :value="5">
           <v-card>
             <v-card-title>
               Generate Output
             </v-card-title>
             <v-card-text>
               <template v-if="hasIssues">
-                <v-alert color="error">
+                <v-alert type="error">
                   <h4>Multiple issues must be resolved before a final file can be generated</h4>
                   <ul>
                     <li v-for="issue in issues" :key="issue"> {{ issue }} </li>
@@ -159,7 +157,7 @@
               </template>
               <template v-if="injectionResults && injectionResults.missing && injectionResults.missing.length > 0">
                 <br />
-                <v-alert color="warning">
+                <v-alert type="warning">
                   <p>There are {{ injectionResults.missing.length }} students who do not appear in the Osiris spreadsheet but who do have
                     a final course result in the source dataset. These are typically considered <strong>Own Risk</strong> students that
                     have to be submitted separately to Osiris. You can download a spreadsheet with these <strong>Own Risk</strong> students
@@ -178,16 +176,16 @@
                 </v-alert>
                 <v-expansion-panels>
                   <v-expansion-panel>
-                    <v-expansion-panel-header>
+                    <v-expansion-panel-title>
                       View Errors 
-                    </v-expansion-panel-header>
-                    <v-expansion-panel-content>
+                    </v-expansion-panel-title>
+                    <v-expansion-panel-text>
                       <ul>
                         <li v-for="(err,idx) in injectionResults.errors" :key="'error-'+idx">
                           {{err}}
                         </li>
                       </ul>
-                    </v-expansion-panel-content>
+                    </v-expansion-panel-text>
                   </v-expansion-panel>
                 </v-expansion-panels>
               </template>
@@ -198,16 +196,16 @@
                 </v-alert>
                 <v-expansion-panels>
                   <v-expansion-panel>
-                    <v-expansion-panel-header>
+                    <v-expansion-panel-title>
                       View Warnings
-                    </v-expansion-panel-header>
-                    <v-expansion-panel-content>
+                    </v-expansion-panel-title>
+                    <v-expansion-panel-text>
                       <ul>
                         <li v-for="(warning,idx) in injectionResults.warnings" :key="'warning-'+idx">
                           {{warning}}
                         </li>
                       </ul>
-                    </v-expansion-panel-content>
+                    </v-expansion-panel-text>
                   </v-expansion-panel>
                 </v-expansion-panels>
               </template>
@@ -217,14 +215,14 @@
               <v-spacer />
             </v-card-actions>
           </v-card>
-        </v-stepper-content>
-      </v-stepper-items>
+        </v-stepper-window-item>
+      </v-stepper-window>
     </v-stepper>
   </div>
 </template>
 
 <script>
-  import XLSX from 'xlsx';
+  import * as XLSX from 'xlsx';
   import { processWorkbookAttemptAll, processSpdWorkbook } from '../util/processWorkbook';
   import GradingPolicy from '../util/GradingPolicy';
   import IdentityConfig from '../util/IdentityConfig';
@@ -233,7 +231,6 @@
   import SourceImporter from './SourceImporter';
   import FileDropZone from './FileDropZone';
   import AttendancePanel from './AttendancePanel'
-  import vueSignature from "vue-signature"
   import { generateMutationDocument, downloadZipFile, sanitizeFilename } from '@/util/generateSignatureZip';
 
   export default {
@@ -243,7 +240,6 @@
       SourceBookCard,
       FileDropZone,
       AttendancePanel,
-      vueSignature
     },
     data: () => ({
       attendance: null,

@@ -31,7 +31,7 @@
           <v-card-text>
             <h5>The following sheets were found</h5>
             <v-list-item v-for="frame in sourceBook.frames" :key="frame.sheetName">
-              <v-list-item-content>{{frame.sheetName}}</v-list-item-content>
+              {{frame.sheetName}}
             </v-list-item>
             <v-alert v-if="sourceBook.skipped.length > 0" type="warning">
               {{sourceBook.skipped.length}} sheets were skipped
@@ -83,11 +83,11 @@
           class="margin-top"
           :disabled="availableColumns.length == 0"
           :items="availableColumns"
-          :item-text="availableColumnToText"
+          :item-title="availableColumnToText"
           :item-value="availableColumnToValue"
           v-model="sourceColumn"
           label="Source Column"
-          outlined />
+          variant="outlined" />
         <v-alert v-if="injectionResults && injectionResults.missing.length > 0" type="warning">
           There are {{injectionResults.missing.length}} students who were missing
           in the injection target.
@@ -99,16 +99,16 @@
           </v-alert>
           <v-expansion-panels>
             <v-expansion-panel>
-              <v-expansion-panel-header>
+              <v-expansion-panel-title>
                 View Errors 
-              </v-expansion-panel-header>
-              <v-expansion-panel-content>
+              </v-expansion-panel-title>
+              <v-expansion-panel-text>
                 <ul>
                   <li v-for="(err,idx) in injectionResults.errors" :key="'error-'+idx">
                     {{err}}
                   </li>
                 </ul>
-              </v-expansion-panel-content>
+              </v-expansion-panel-text>
             </v-expansion-panel>
           </v-expansion-panels>
         </template>
@@ -119,16 +119,16 @@
           </v-alert>
           <v-expansion-panels>
             <v-expansion-panel>
-              <v-expansion-panel-header>
+              <v-expansion-panel-title>
                 View Warnings
-              </v-expansion-panel-header>
-              <v-expansion-panel-content>
+              </v-expansion-panel-title>
+              <v-expansion-panel-text>
                 <ul>
                   <li v-for="(warning,idx) in injectionResults.warnings" :key="'warning-'+idx">
                     {{warning}}
                   </li>
                 </ul>
-              </v-expansion-panel-content>
+              </v-expansion-panel-text>
             </v-expansion-panel>
           </v-expansion-panels>
         </template>
@@ -138,7 +138,7 @@
 </template>
 
 <script>
-  import XLSX from 'xlsx';
+  import * as XLSX from 'xlsx';
   import {processWorkbook} from '../util/processWorkbook';
   import GradingPolicy from '../util/GradingPolicy';
   import IdentityConfig from '../util/IdentityConfig';

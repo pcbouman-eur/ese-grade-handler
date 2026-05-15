@@ -1,23 +1,23 @@
 <template>
   <v-select
-    v-if="value"
+    v-if="modelValue"
     :items="availableColumns"
-    :item-text="availableColumnToText"
+    :item-title="availableColumnToText"
     :item-value="availableColumnToValue"
-    :value="currentCol.outputColumn"
-    @change="v => updateSourceColumn(v, currentCol)"
+    :model-value="currentCol.outputColumn"
+    @update:model-value="v => updateSourceColumn(v, currentCol)"
     :label="label"
-    outlined
-    dense />
+    variant="outlined"
+    density="compact" />
 </template>
 
 <script>
   export default {
     name: 'SelectColumn',
-    props: ['availableColumns', 'availableKeys', 'value', 'label', 'index'],
+    props: ['availableColumns', 'availableKeys', 'modelValue', 'label', 'index'],
+    emits: ['update:modelValue'],
     methods: {
       availableColumnToText(c) {
-        //console.log(c);
         if (c.type == 'attendance-cat') {
           return 'Attendance Status';
         }
@@ -47,12 +47,12 @@
       updateSourceColumn(newVal, col) {
         col.outputColumn = newVal;
         col.outputName = newVal.column;
-        this.$emit('input', col);
+        this.$emit('update:modelValue', col);
       },
     },
     computed: {
       currentCol() {
-        return this.value;
+        return this.modelValue;
       }
     }
   }

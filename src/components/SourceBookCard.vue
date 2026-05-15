@@ -12,7 +12,7 @@
             </v-card>
         </template>
         <v-list-item v-else v-for="frame in sourceBook.frames" :key="frame.sheetName">
-            <v-list-item-content>{{frame.sheetName}}</v-list-item-content>
+            {{frame.sheetName}}
         </v-list-item>
         <v-alert v-if="!askInclude && sourceBook.frames.length > 0" type="success">
             {{ sourceBook.frames.length }} sheets successfully imported.

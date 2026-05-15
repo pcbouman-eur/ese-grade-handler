@@ -1,19 +1,17 @@
 <template>
   <div style="display:flex; justify-content: center;">
-    <v-stepper v-model="step" non-linear style="width: 100%; max-width: 60em;" @change="stepperChange()">
+    <v-stepper v-model="step" non-linear style="width: 100%; max-width: 60em;" @update:modelValue="stepperChange()">
       <v-stepper-header>
-        <v-stepper-step editable step="1" :complete="step > 1" >Introduction</v-stepper-step>
+        <v-stepper-item editable :value="1" :complete="step > 1" title="Introduction" />
         <v-divider />      
-        <v-stepper-step editable step="2" :complete="step > 2" >Load Data</v-stepper-step>
+        <v-stepper-item editable :value="2" :complete="step > 2" title="Load Data" />
         <v-divider />
-        <v-stepper-step editable step="3" :complete="step > 3" >Input Signature</v-stepper-step>
+        <v-stepper-item editable :value="3" :complete="step > 3" title="Input Signature" />
         <v-divider />
-        <!-- <v-stepper-step editable step="4" :complete="step > 4" >Signature Date</v-stepper-step>
-        <v-divider /> -->
-        <v-stepper-step editable step="4" >Obtain Output</v-stepper-step>
+        <v-stepper-item editable :value="4" title="Obtain Output" />
       </v-stepper-header>
-      <v-stepper-items>
-        <v-stepper-content step="1">
+      <v-stepper-window>
+        <v-stepper-window-item :value="1">
           <v-card>
             <v-card-title>Signer</v-card-title>
             <v-card-text>
@@ -28,8 +26,8 @@
               <v-btn color="primary" @click="next()">Next</v-btn>                        
             </v-card-actions>
           </v-card>
-        </v-stepper-content>
-        <v-stepper-content step="2">
+        </v-stepper-window-item>
+        <v-stepper-window-item :value="2">
           <v-card>
             <v-card-title>Input Spreadsheets</v-card-title>
             <v-card-text>
@@ -37,7 +35,7 @@
               <p>Select an SPD-style spreadsheet with student results</p>
               <FileDropZone accept=".xlsx" :autoSubmit="true" @change="spdFileChosen" />
               <br />
-              <v-alert v-if="spdData" color="primary">
+              <v-alert v-if="spdData" type="info">
                 <h4>Data for course {{ courseName }} ({{ courseCode }}) loaded</h4>
                 <p>Data for {{ spdData.data.length }} students loaded</p>
               </v-alert>
@@ -48,8 +46,8 @@
               <v-btn color="primary" @click="next()">Next</v-btn>                        
             </v-card-actions>
           </v-card>
-        </v-stepper-content>
-        <v-stepper-content step="3">
+        </v-stepper-window-item>
+        <v-stepper-window-item :value="3">
           <v-card>
             <v-card-title>Output Spreadsheet</v-card-title>
             <v-card-text>
@@ -63,10 +61,10 @@
               </v-container>
               <hr />
               <p>Please draw your signature below.  This signature will be copied to all generated forms.</p>
-              <vueSignature class="signature-box" ref="signature" :w="signatureWidth+'px'" :h="signatureHeight+'px'" />
+              <!-- vueSignature removed (vue-signature not compatible with Vue 3) -->
               <div>
-                <v-btn class="draw-button" fab small color="primary" @click="$refs.signature.undo()"><v-icon dark>mdi-undo</v-icon></v-btn>
-                <v-btn class="draw-button" fab small color="error" @click="$refs.signature.clear()"><v-icon dark>mdi-delete</v-icon></v-btn>
+                <v-btn class="draw-button" icon size="small" color="primary" @click="$refs.signature && $refs.signature.undo()"><v-icon>mdi-undo</v-icon></v-btn>
+                <v-btn class="draw-button" icon size="small" color="error" @click="$refs.signature && $refs.signature.clear()"><v-icon>mdi-delete</v-icon></v-btn>
               </div>
             </v-card-text>
             <v-card-actions>
@@ -75,28 +73,14 @@
               <v-btn color="primary" @click="next()">Next</v-btn>
             </v-card-actions>
           </v-card>
-        </v-stepper-content>
-        <!-- <v-stepper-content step="4">
-          <v-card>
-            <v-card-title>Output Spreadsheet</v-card-title>
-            <v-card-text>
-              <p>Please pick the date of signing the forms below. By default, today is used.</p>
-              <v-date-picker v-model="selectedDate" locale="nl-nl" />
-            </v-card-text>
-            <v-card-actions>
-              <v-btn color="primary" @click="step--">Previous</v-btn>
-              <v-spacer />
-              <v-btn color="primary" @click="step++">Next</v-btn>
-            </v-card-actions>
-          </v-card>
-        </v-stepper-content>         -->
-        <v-stepper-content step="4">
+        </v-stepper-window-item>
+        <v-stepper-window-item :value="4">
           <v-card>
             <v-card-title>
               Generate Zipfile
             </v-card-title>
             <v-card-text>
-                <v-alert color="warning" v-if="hasIssues">
+                <v-alert type="warning" v-if="hasIssues">
                   <h3>There are still some issues to resolve before the forms can be generated</h3>
                   <div>
                     <ul>
@@ -110,7 +94,7 @@
                   Generating zip-file with forms
                 </div>
                 <div>
-                  <v-btn block color="primary" :disabled="busy || hasIssues" @click="generateForms()"><v-icon dark>mdi-zip</v-icon> Generate Zip File</v-btn>
+                  <v-btn block color="primary" :disabled="busy || hasIssues" @click="generateForms()"><v-icon>mdi-zip</v-icon> Generate Zip File</v-btn>
                 </div>
             </v-card-text>
             <v-card-actions>
@@ -118,17 +102,16 @@
               <v-spacer />
             </v-card-actions>
           </v-card>
-        </v-stepper-content>
-      </v-stepper-items>
+        </v-stepper-window-item>
+      </v-stepper-window>
     </v-stepper>
   </div>
 </template>
 
 <script>
-  import XLSX from 'xlsx';
+  import * as XLSX from 'xlsx';
   import {processWorkbook, processSpdWorkbook} from '../util/processWorkbook';
   import FileDropZone from './FileDropZone.vue';
-  import vueSignature from "vue-signature"
 
   import { generateDocument, downloadZipFile, sanitizeFilename } from '@/util/generateSignatureZip';
 
@@ -136,7 +119,7 @@
   export default {
     name: 'Signer',
     components: {
-      FileDropZone, vueSignature
+      FileDropZone
     },
     data: () => ({
       step: 1,
