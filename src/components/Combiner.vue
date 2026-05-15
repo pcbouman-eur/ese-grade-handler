@@ -36,7 +36,7 @@
               Multiple columns with identities found, this is currently not supported.
             </v-card-text> -->
             <v-card-actions>
-              <v-switch label="Add all students to output" v-model="frame.includeStudents" />
+              <v-switch label="Add all students to output" v-model="frame.includeStudents" color="primary" />
             </v-card-actions>
           </v-card>
           <v-alert v-if="book.skipped.length > 0" type="warning">
@@ -51,7 +51,7 @@
         &nbsp;
         <v-btn color="primary" :disabled="cantExport" @click="exportSheet">Export Spreadsheet</v-btn>
         <br />
-        <v-switch label="Remove students without any results" v-model="dropEmptyStudents" />
+        <v-switch label="Remove students without any results" v-model="dropEmptyStudents" color="primary" />
 
         <v-card v-if="availableKeys.length > 0">
           <v-container class="colContainer">
@@ -94,7 +94,7 @@
         </v-card>
         <div v-if="availableColumns.length > 0">
           <h4>Filter Students</h4>
-          <v-switch v-model="addFilter" :label="filterLabel" />
+          <v-switch v-model="addFilter" :label="filterLabel" color="primary" />
           <ConditionPanel v-show="addFilter" :availableColumns="availableColumns" :availableKeys="availableKeys" 
                           @update:model-value="updateFilter"/>
         </div>

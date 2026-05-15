@@ -49,7 +49,7 @@
           Export Missing</v-btn>          
         <input type="file" style="display: none" ref="openFileTarget"
                 accept=".xlsx" @change="fileTargetChosen" />
-        <v-switch label="Invalid result for students with insufficient attendance" v-if="attendance" v-model="useAttendance" />
+        <v-switch label="Invalid result for students with insufficient attendance" v-if="attendance" v-model="useAttendance" color="primary" />
         
         <h5 v-if="targetFilename">Target Spreadsheet: {{targetFilename}}</h5>
         <h5 v-else>Target Spreadsheet: not set</h5>

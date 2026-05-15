@@ -37,7 +37,7 @@
               <br />
               <v-alert v-if="spdData" type="info">
                 <h4>Data for course {{ courseName }} ({{ courseCode }}) loaded</h4>
-                <p>Data for {{ spdData.data.length }} students loaded</p>
+                <p>Data for {{ spdData.rows.length }} students loaded</p>
               </v-alert>
             </v-card-text>
             <v-card-actions>
@@ -55,13 +55,13 @@
               <v-container>
                 <v-row>
                   <v-col cols="12">
-                    <v-text-field v-model="teacherName"  label="Name of the Teacher" hint="Please fill in your name"/>
+                    <v-text-field v-model="teacherName" label="Name of the Teacher" hint="Please fill in your name" variant="outlined" density="compact" />
                   </v-col>
                 </v-row>
               </v-container>
               <hr />
-              <p>Please draw your signature below.  This signature will be copied to all generated forms.</p>
-              <!-- vueSignature removed (vue-signature not compatible with Vue 3) -->
+              <p>Please draw your signature below. This signature will be copied to all generated forms.</p>
+              <SignaturePad ref="signature" />
               <div>
                 <v-btn class="draw-button" icon size="small" color="primary" @click="$refs.signature && $refs.signature.undo()"><v-icon>mdi-undo</v-icon></v-btn>
                 <v-btn class="draw-button" icon size="small" color="error" @click="$refs.signature && $refs.signature.clear()"><v-icon>mdi-delete</v-icon></v-btn>
@@ -112,6 +112,7 @@
   import * as XLSX from 'xlsx';
   import {processWorkbook, processSpdWorkbook} from '../util/processWorkbook';
   import FileDropZone from './FileDropZone.vue';
+  import SignaturePad from './SignaturePad.vue';
 
   import { generateDocument, downloadZipFile, sanitizeFilename } from '@/util/generateSignatureZip';
 
@@ -119,7 +120,8 @@
   export default {
     name: 'Signer',
     components: {
-      FileDropZone
+      FileDropZone,
+      SignaturePad
     },
     data: () => ({
       step: 1,
@@ -148,8 +150,8 @@
         this.busy = true;
         new Promise((resolve) => {
           const data = [];
-          const signatureBlob = this.$refs.signature.sig.canvas.toDataURL();
-          for (const row of this.spdData.data) {
+          const signatureBlob = this.$refs.signature.toDataURL();
+          for (const row of this.spdData.rows) {
             const stdElement = { 
               courseName: this.courseName,
               courseCode: this.courseCode,
@@ -226,7 +228,7 @@
         if (!this.spdData) {
           result.push('You need to load data from a SPD Spreadsheet file');
         }
-        else if (this.spdData?.data?.length <= 0){
+        else if (this.spdData?.rows?.length <= 0){
           result.push('No student results were obtained from the SPD Spreadsheet file');
         }
         if (this.teacherName.trim() == '') {

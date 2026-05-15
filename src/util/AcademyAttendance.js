@@ -129,7 +129,7 @@ const STATUS_DESCRIPTIONS = {
 function determineAttendanceStatus(df, minimum_attendance, present_colnames=PRESENT_COLS) {
     const id_col = getColumn(df, ID_COL); //df[ID_COL].data;
     const exemption_col = getColumn(df, EXEMPTION_COL); //df[EXEMPTION_COL].data;
-    const present_cols = present_colnames.map(c => df[c].data);
+    const present_cols = present_colnames.filter(c => df[c]).map(c => df[c].data);
 
     const name_col = getColumn(df, NAME_COL); //df[NAME_COL].data;
     const group_col = getColumn(df, GROUP_COL); //df[GROUP_COL].data;

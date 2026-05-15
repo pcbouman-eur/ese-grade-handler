@@ -2,13 +2,12 @@
   <v-app>
     <v-app-bar
       color="primary"
+      theme="dark"
     >
-      <div class="d-flex align-center">
-        <h3>ESE Grade Handler</h3>
-      </div>
+      <v-toolbar-title>ESE Grade Handler</v-toolbar-title>
 
       <v-spacer></v-spacer>
-      <v-btn color="error" @click="refresh">Reset</v-btn>
+      <v-btn color="red-darken-2" variant="elevated" @click="refresh">Reset</v-btn>
     </v-app-bar>
 
     <v-main>

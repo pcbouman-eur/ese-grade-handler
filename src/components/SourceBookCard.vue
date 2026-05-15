@@ -7,7 +7,7 @@
             <v-card v-for="frame in sourceBook.frames" :key="frame.sheetName">
                 <v-card-title>{{frame.sheetName}}</v-card-title>
                 <v-card-actions>
-                    <v-switch label="Add all students to output" v-model="frame.includeStudents" />
+                    <v-switch label="Add all students to output" v-model="frame.includeStudents" color="primary" />
                 </v-card-actions>
             </v-card>
         </template>

@@ -10,8 +10,15 @@ class DataFrame {
         this._buildColumnAccessors();
     }
 
-    _buildColumnAccessors() {
-        for (let i = 0; i < this.columns.length; i++) {
+    get shape() {
+        return [this._data.length, this.columns.length];
+    }
+
+    get rows() {
+        return this._data;
+    }
+
+    _buildColumnAccessors() {        for (let i = 0; i < this.columns.length; i++) {
             const col = this.columns[i];
             this[col] = { data: this._data.map(row => row[i]) };
         }

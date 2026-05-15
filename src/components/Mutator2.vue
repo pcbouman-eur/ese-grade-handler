@@ -114,13 +114,13 @@
               <v-container>
                 <v-row>
                   <v-col cols="12">
-                    <v-text-field v-model="teacherName"  label="Name of the Teacher" hint="Please fill in your name"/>
+                    <v-text-field v-model="teacherName" label="Name of the Teacher" hint="Please fill in your name" variant="outlined" density="compact" />
                   </v-col>
                 </v-row>
               </v-container>
               <hr />
-              <p>Please draw your signature below.  This signature will be copied to all generated forms.</p>
-              <!-- vueSignature removed (vue-signature not compatible with Vue 3) -->
+              <p>Please draw your signature below. This signature will be copied to all generated forms.</p>
+              <SignaturePad ref="signature" />
               <div>
                 <v-btn class="draw-button" icon size="small" color="primary" @click="$refs.signature && $refs.signature.undo()"><v-icon>mdi-undo</v-icon></v-btn>
                 <v-btn class="draw-button" icon size="small" color="error" @click="$refs.signature && $refs.signature.clear()"><v-icon>mdi-delete</v-icon></v-btn>
@@ -231,6 +231,7 @@
   import SourceImporter from './SourceImporter';
   import FileDropZone from './FileDropZone';
   import AttendancePanel from './AttendancePanel'
+  import SignaturePad from './SignaturePad.vue';
   import { generateMutationDocument, downloadZipFile, sanitizeFilename } from '@/util/generateSignatureZip';
 
   export default {
@@ -240,6 +241,7 @@
       SourceBookCard,
       FileDropZone,
       AttendancePanel,
+      SignaturePad,
     },
     data: () => ({
       attendance: null,
@@ -421,8 +423,8 @@
         const signatureDate = new Date().toLocaleDateString('nl-nl');
         new Promise((resolve) => {
           const data = [];
-          const signatureBlob = this.$refs.signature.sig.canvas.toDataURL();
-          for (const row of this.spdData.data) {
+          const signatureBlob = this.$refs.signature.toDataURL();
+          for (const row of this.spdData.rows) {
             const oldResult = row[3];
             const newResult = this.processedResults.data[row[0]] || 'NO';
             if (oldResult == newResult) {

@@ -37,7 +37,7 @@
                   <p><strong>Most common number of sessions:</strong> {{mostCommonAttendance}}.</p>
                   <div>
                     <v-text-field type="number" v-model.number="minimumAttendance"
-                      min="0" label="Minimum attendance threshold" />
+                      min="0" label="Minimum attendance threshold" variant="outlined" density="compact" />
                   </div>
 
                   <v-card>

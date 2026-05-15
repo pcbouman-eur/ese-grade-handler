@@ -119,9 +119,9 @@
             </v-card-title>
             <v-card-text>
                 <p>Use the following option if you want to remove students who have no results in any of the output columns</p>
-                <v-switch label="Remove students without any results" v-model="dropEmptyStudents" />
+                <v-switch label="Remove students without any results" v-model="dropEmptyStudents" color="primary" />
                 <p>Use these option if you want to conditionally remove certain students from the output.</p>
-                <v-switch v-model="addFilter" :label="filterLabel" />
+                <v-switch v-model="addFilter" :label="filterLabel" color="primary" />
                 <ConditionPanel v-show="addFilter" :availableColumns="availableColumns" :availableKeys="availableKeys" 
                                 @update:model-value="updateFilter"/>
             </v-card-text>

@@ -8,7 +8,7 @@
         </h5>
         <v-list-item>
           <v-text-field type="number" v-model.number="modelValue.threshold"
-            min="0" :max="modelValue.sessions.length" label="Minimum attendance threshold" />
+            min="0" :max="modelValue.sessions.length" label="Minimum attendance threshold" variant="outlined" density="compact" />
         </v-list-item>
         <v-alert v-if="modelValue.duplicates.length > 0" type="warning">
           Multiple entries were found for the following students whose data
