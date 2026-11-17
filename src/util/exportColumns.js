@@ -137,4 +137,16 @@ function makeTable(outputKey, allKeys, outputCols, dropEmptyStudents, filter) {
     return table;
 }
 
-export default {makeTable, columnToDataset};
+/**
+ * Returns true if keys of type outputKey can be obtained from the given frame keys,
+ * either directly or via a conversion defined in IdentityConfig.
+ */
+function canExtractKeys(keys, outputKey) {
+    if (keys[outputKey]) {
+        return true;
+    }
+    return IdentityConfig.conversions.some(conv_spec =>
+        conv_spec.to == outputKey && conv_spec.from.some(src_key => keys[src_key]));
+}
+
+export default {makeTable, columnToDataset, extractKeys, canExtractKeys};

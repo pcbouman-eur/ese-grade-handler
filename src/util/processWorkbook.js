@@ -33,7 +33,7 @@ function findKeyColumns(df,  onlyColumns=[], config=IdentityConfig) {
         let colIssues = {};
         for (let keySpec of config.keyTypes) {
             const spec = checkKeySpec(df[colname], keySpec);
-            if (spec.result && !(spec.name in result)) {
+            if (spec.result && !(keySpec.name in result)) {
                 result[keySpec.name] = {type: keySpec.name, column: colname, keys: spec.keyCol};
                 continue cols;
             }

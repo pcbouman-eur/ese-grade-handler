@@ -283,28 +283,24 @@
         return result;
       },
       availableKeys() {
-        const keys = new Set();
+        // TODO: this is of course an ugly hack! We only support student numbers as output key,
+        // but frames that only have ERNAs can be converted to student numbers.
         for (let wb of this.workbooks) {
           for (let frame of wb.frames) {
-            for (const key of Object.values(frame.keys)) {
-              keys.add(key.type);
+            if (exportColumns.canExtractKeys(frame.keys, 'student number')) {
+              return ['student number'];
             }
           }
         }
-        // TODO: this is of course an ugly hack!
-        if (keys.has('student number')) {
-          return ['student number'];
-        }
-
         return [];
       },
       allKeys() {
         let keys = new Set();
         for (let wb of this.workbooks) {
           for (let frame of wb.frames) {
-            if (frame.includeStudents && this.keyColumn && frame.keys[this.keyColumn]) {
-              const kc = frame.keys[this.keyColumn];
-              for (let key of kc.keys) {
+            if (frame.includeStudents && this.keyColumn
+                && exportColumns.canExtractKeys(frame.keys, this.keyColumn)) {
+              for (let key of exportColumns.extractKeys(frame.keys, this.keyColumn)) {
                 keys.add(key);
               }
             }
